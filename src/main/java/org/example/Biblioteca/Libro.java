@@ -1,8 +1,9 @@
 package org.example.Biblioteca;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class Libro {
+public class Libro implements Serializable {
     private long ISBN;
     private String  titolo, autore, genere;
     private int valutazione;
