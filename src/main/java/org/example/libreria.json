@@ -102,5 +102,13 @@
     "genere": "a",
     "valutazione": 1,
     "autore": "a"
+  },
+  {
+    "stato": "IN_LEGGERE",
+    "titolo": "aa",
+    "isbn": "4",
+    "genere": "aa",
+    "valutazione": 1,
+    "autore": "aa"
   }
 ]

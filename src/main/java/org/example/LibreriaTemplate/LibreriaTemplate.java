@@ -31,24 +31,24 @@ public abstract class LibreriaTemplate {
 
     //Metodo per ottenere il libro dalla linea appena letta
     Libro ottieniLibro(String linea, String delimitatore) {
-        StringTokenizer st = new StringTokenizer(linea,delimitatore);
+        StringTokenizer st = new StringTokenizer(linea, delimitatore);
         long isbn = Long.parseLong(st.nextToken());
         String titolo = st.nextToken();
         String autore = st.nextToken();
         String genere = st.nextToken();
         int valutazione = Integer.parseInt(st.nextToken());
         StatoLettura statoLettura = StatoLettura.valueOf(st.nextToken());
-        Libro l = new Libro(isbn,titolo,autore,genere,valutazione,statoLettura);
-        System.out.println("Libro ricostruito = "+l);
+        Libro l = new Libro(isbn, titolo, autore, genere, valutazione, statoLettura);
+        System.out.println("Libro ricostruito = " + l);
         return l;
     }
 
-    public boolean aggiungiLibro(Libro l){
-        if (biblitoeca.contains(l)){
-            System.out.println("La struttra contiene già il libro"+l+", non lo aggiugo");
+    public boolean aggiungiLibro(Libro l) {
+        if (biblitoeca.contains(l)) {
+            System.out.println("La struttra contiene già il libro" + l + ", non lo aggiugo");
             return false;
         }
-        System.out.println("La biblioteca NON contiene il libro "+l+", lo aggiungo");
+        System.out.println("La biblioteca NON contiene il libro " + l + ", lo aggiungo");
         biblitoeca.add(l);
         return true;
     }
