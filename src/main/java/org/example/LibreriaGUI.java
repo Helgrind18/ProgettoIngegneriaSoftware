@@ -6,6 +6,9 @@ import org.example.LibreriaTemplate.LibreriaJSON;
 import org.example.LibreriaTemplate.LibreriaTemplate;
 import org.example.Biblioteca.Libro;
 import org.example.Biblioteca.StatoLettura;
+import org.example.Strategy.OrdinaContext;
+import org.example.Strategy.OrdinaStrategy;
+import org.example.Strategy.OrdinaValutazione;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -17,17 +20,22 @@ import java.io.File;
 public class LibreriaGUI extends JFrame {
     private final LibreriaTemplate libreria;
     private final DefaultTableModel tableModel;
-
+    private final OrdinaContext gestore;  // il nostro Context
     public LibreriaGUI(File fileJson) {
         super("Libreria");
-        this.libreria = new LibreriaJSON(fileJson);
+        this.libreria = new LibreriaCSV(fileJson);
         libreria.esegui();  // carica la lista una volta sola
+
+        /*
+        * Implementazione di Strategy
+        * */
+        gestore = new OrdinaContext(libreria.getBiblitoeca()); // Di default è impostato l'ordiinaValutazione
 
         // colonne e tabella
         String[] colonne = {"ISBN", "Titolo", "Autore", "Genere", "Valutazione", "Stato"};
         tableModel = new DefaultTableModel(colonne, 0);
         JTable table = new JTable(tableModel);
-        riempiTabella(libreria.getBiblitoeca());
+        riempiTabella(gestore.ordina());
 
         // pulsanti
         JButton addBtn = new JButton("Aggiungi Libro");
@@ -35,8 +43,24 @@ public class LibreriaGUI extends JFrame {
         addBtn.addActionListener(e -> aggiungiLibro());
         searchBtn.addActionListener(e -> ricercaLibro());
 
+        //Vado a definire i vari criteri che possono servire nell'ordinamento
+        String [] criteri = {"Valutazione", "Titolo"};
+        JComboBox<String> sortBox = new JComboBox<>(criteri);
+        sortBox.addActionListener(e -> {
+            String criterio = (String) sortBox.getSelectedItem();
+            System.out.println("Criterio selezionato = "+criterio);
+            switch (criterio) {
+                case "Valutazione":
+                    gestore.setStrategy(new OrdinaValutazione());
+                    break;
+            }
+            riempiTabella(gestore.ordina());
+        });
+
         // layout
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        south.add(new JLabel("Ordina per:"));
+        south.add(sortBox);
         south.add(searchBtn);
         south.add(addBtn);
 
@@ -172,7 +196,7 @@ public class LibreriaGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        File file = new File(Costanti.percorsoFileJSONNuovo);
+        File file = new File(Costanti.percorsoFileCSV);
         if (!file.exists()) {
             try {
                 file.createNewFile();
