@@ -12,8 +12,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
-import java.util.Set;
 
 public class LibreriaJSON extends LibreriaTemplate {
 
@@ -64,8 +62,12 @@ public class LibreriaJSON extends LibreriaTemplate {
         }
     }
 
+    /*
+    * Il file Json è un array, quindi non posso appendere come faccio in, prima devo leggere l'intero array, aggiungere all'oggetto
+    * outputArray e poi scrivere quell'oggetto sul file
+    * */
     @Override
-    public void scriviSuFile() {
+    public void scriviSuFile(Libro nuovo) {
         // Costruiamo un JSONArray dei libri filtrati
         JSONArray outputArray = new JSONArray();
         for (Libro libro : super.getBiblitoeca()) {
@@ -84,9 +86,7 @@ public class LibreriaJSON extends LibreriaTemplate {
             outputArray.add(json);
         }
 
-        // Scriviamo l’intero array su file in un colpo solo
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria, false))) {
-            // toJSONString() restituisce la rappresentazione compatta in JSON
             pw.write(outputArray.toJSONString());
             pw.flush();
         } catch (IOException e) {

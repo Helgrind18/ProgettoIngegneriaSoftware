@@ -110,5 +110,13 @@
     "genere": "aa",
     "valutazione": 1,
     "autore": "aa"
+  },
+  {
+    "stato": "DA_LEGGERE",
+    "titolo": "titolo5",
+    "isbn": "5",
+    "genere": "genere",
+    "valutazione": 1,
+    "autore": "autore"
   }
 ]

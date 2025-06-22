@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.List;
 import java.awt.*;
 import java.io.File;
-import java.util.Locale;
 
 public class LibreriaGUI extends JFrame {
     private final LibreriaTemplate libreria;
@@ -21,20 +20,20 @@ public class LibreriaGUI extends JFrame {
 
     public LibreriaGUI(File fileJson) {
         super("Libreria");
-        this.libreria = new LibreriaCSV(fileJson);
+        this.libreria = new LibreriaJSON(fileJson);
         libreria.esegui();  // carica la lista una volta sola
 
         // colonne e tabella
         String[] colonne = {"ISBN", "Titolo", "Autore", "Genere", "Valutazione", "Stato"};
         tableModel = new DefaultTableModel(colonne, 0);
         JTable table = new JTable(tableModel);
-        populateTable(libreria.getBiblitoeca());
+        riempiTabella(libreria.getBiblitoeca());
 
         // pulsanti
         JButton addBtn = new JButton("Aggiungi Libro");
         JButton searchBtn = new JButton("Ricerca");
-        addBtn.addActionListener(e -> showAddDialog());
-        searchBtn.addActionListener(e -> showSearchDialog());
+        addBtn.addActionListener(e -> aggiungiLibro());
+        searchBtn.addActionListener(e -> ricercaLibro());
 
         // layout
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -51,7 +50,7 @@ public class LibreriaGUI extends JFrame {
         this.setLocationRelativeTo(null);
     }
 
-    private void showSearchDialog() {
+    private void ricercaLibro() {
         JTextField titoloField = new JTextField(); // Campo per inserire il titolo
         JTextField autoreField = new JTextField(); // Campo per inserire l'autore
         JTextField genereField = new JTextField(); // Campo per inserire il genere
@@ -89,11 +88,11 @@ public class LibreriaGUI extends JFrame {
 
             // Avvio la ricerca e popolo la tabella
             List<Libro> risultati = ricerca.cerca();
-            populateTable(risultati);
+            riempiTabella(risultati);
         }
     }
 
-    private void populateTable(List<Libro> lista) {
+    private void riempiTabella(List<Libro> lista) {
         tableModel.setRowCount(0);
         for (Libro l : lista) {
             tableModel.addRow(new Object[]{
@@ -104,7 +103,7 @@ public class LibreriaGUI extends JFrame {
     }
 
 
-    private void showAddDialog() {
+    private void aggiungiLibro() {
         // Panel di input
         JTextField isbnField = new JTextField();
         JTextField titoloField = new JTextField();
@@ -145,8 +144,8 @@ public class LibreriaGUI extends JFrame {
 
                 Libro nuovo = new Libro(isbn, titolo, autore, genere, val, stato);
                 if (libreria.aggiungiLibro(nuovo)) {
-                    // Salvo su file JSON
-                    libreria.scriviSuFile();
+                    // Salvo su file
+                    libreria.scriviSuFile(nuovo);
 
                     // Aggiungo solo la nuova riga, senza ripopolare tutta la tabella
                     tableModel.addRow(new Object[]{
@@ -173,7 +172,7 @@ public class LibreriaGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        File file = new File(Costanti.percorsoFileCSV);
+        File file = new File(Costanti.percorsoFileJSONNuovo);
         if (!file.exists()) {
             try {
                 file.createNewFile();

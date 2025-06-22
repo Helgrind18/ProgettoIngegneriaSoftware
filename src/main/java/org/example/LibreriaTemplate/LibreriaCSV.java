@@ -3,8 +3,6 @@ package org.example.LibreriaTemplate;
 import org.example.Biblioteca.Libro;
 
 import java.io.*;
-import java.util.List;
-import java.util.StringTokenizer;
 
 public class LibreriaCSV extends LibreriaTemplate {
     public LibreriaCSV(File fileLibreria) {
@@ -23,7 +21,7 @@ public class LibreriaCSV extends LibreriaTemplate {
                     return;
                 }
                 System.out.println("Linea letta = "+linea);
-                Libro l = ottieniLibro(linea,",");
+                Libro l = super.ottieniLibro(linea,",");
                 if (super.aggiungiLibro(l)){
                     System.out.println("Libro "+l +" aggiunto correttametne");
                 }
@@ -34,11 +32,14 @@ public class LibreriaCSV extends LibreriaTemplate {
     }
 
     @Override
-    public void scriviSuFile() {
+    public void scriviSuFile(Libro nuovo) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria),true)) {
-            for (Libro libro : super.getBiblitoeca()){
-                pw.println(libro.getISBN()+","+libro.getTitolo()+","+libro.getAutore()+","+libro.getGenere()+","+libro.getValutazione()+","+libro.getStatoLettura());
-            }
+            pw.println(nuovo.getISBN() + "," +
+                    nuovo.getTitolo() + "," +
+                    nuovo.getAutore() + "," +
+                    nuovo.getGenere() + "," +
+                    nuovo.getValutazione() + "," +
+                    nuovo.getStatoLettura());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

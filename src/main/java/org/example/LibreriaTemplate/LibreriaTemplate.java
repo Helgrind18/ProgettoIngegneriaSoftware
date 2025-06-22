@@ -55,5 +55,5 @@ public abstract class LibreriaTemplate {
 
 
     //Consente di scrivere sul file
-    public abstract void scriviSuFile();
+    public abstract void scriviSuFile(Libro nuovo);
 }
