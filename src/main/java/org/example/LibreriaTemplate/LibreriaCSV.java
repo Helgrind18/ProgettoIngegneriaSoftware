@@ -33,13 +33,31 @@ public class LibreriaCSV extends LibreriaTemplate {
 
     @Override
     public void scriviSuFile(Libro nuovo) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria),true)) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria,true),true)) {
             pw.println(nuovo.getISBN() + "," +
                     nuovo.getTitolo() + "," +
                     nuovo.getAutore() + "," +
                     nuovo.getGenere() + "," +
                     nuovo.getValutazione() + "," +
                     nuovo.getStatoLettura());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    protected void sovrascriviFile() {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria, false))) {
+            for (Libro l : getBiblitoeca()) {
+                pw.println(
+                        l.getISBN() + "," +
+                                l.getTitolo() + "," +
+                                l.getAutore() + "," +
+                                l.getGenere() + "," +
+                                l.getValutazione() + "," +
+                                l.getStatoLettura()
+                );
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -11,8 +11,9 @@
 1,asd,asd,asd,1,LETTO
 2,aa,asd,asd,1,LETTO
 3,aaa,aaa,aaa,1,LETTO
-4,aaaaa,asd,aa,1,LETTO
-5,aa,asdasd,aaaa,1,LETTO
+4,aaaaaaaaaaaa,asd,aa,1,LETTO
+5,bbbbbbbbbbbb,bbbbbbbbbbbb,aaaabbbb,5,DA_LEGGERE
 6,aa,bb,asd,1,LETTO
 7,titolo7,autore,genere,1,DA_LEGGERE
 8,titolo8,autore,genere,2,IN_LEGGERE
+9,titolo8,autore,genere,1,DA_LEGGERE

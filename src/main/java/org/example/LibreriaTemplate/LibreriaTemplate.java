@@ -4,9 +4,7 @@ import org.example.Biblioteca.Libro;
 import org.example.Biblioteca.StatoLettura;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public abstract class LibreriaTemplate {
     protected File fileLibreria;
@@ -53,7 +51,34 @@ public abstract class LibreriaTemplate {
         return true;
     }
 
-
     //Consente di scrivere sul file
     public abstract void scriviSuFile(Libro nuovo);
+
+    //Consente di modificare il libro. Nota bene: non posso modificare un file, non posso inserire in mezzo un libro modificato
+    abstract void sovrascriviFile();
+
+    public boolean modificaLibro(Libro vecchio, Libro nuovo) {
+        System.out.println("Devo modificare il libro " + vecchio + " con il seguente libro " + nuovo);
+        if (nuovo == null) {
+            return false;
+        }
+        if (!biblitoeca.contains(vecchio)) {
+            System.out.println(vecchio + " inesistente!");
+            return false;
+        }
+        ListIterator<Libro> libroListIterator = biblitoeca.listIterator();
+        while (libroListIterator.hasNext()){
+            Libro l = libroListIterator.next();
+            if (l.getISBN() == vecchio.getISBN()){
+                System.out.println("Ho trovato il libro!");
+                libroListIterator.set(nuovo);
+                sovrascriviFile();
+                return true;
+            }
+        }
+        System.out.println("Libro non trovato");
+        return false;
+    }
+
+
 }

@@ -68,6 +68,9 @@ public class LibreriaJSON extends LibreriaTemplate {
     * */
     @Override
     public void scriviSuFile(Libro nuovo) {
+
+        //NB: in questo metodo il libro non viene usato, serve per la classe CSV ad appenderlo
+
         // Costruiamo un JSONArray dei libri filtrati
         JSONArray outputArray = new JSONArray();
         for (Libro libro : super.getBiblitoeca()) {
@@ -93,4 +96,10 @@ public class LibreriaJSON extends LibreriaTemplate {
             throw new RuntimeException("Errore in scrittura JSON", e);
         }
     }
+
+    @Override
+    protected void sovrascriviFile() {
+        scriviSuFile(null);
+    }
+
 }
