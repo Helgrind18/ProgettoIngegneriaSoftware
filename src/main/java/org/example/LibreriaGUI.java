@@ -6,9 +6,7 @@ import org.example.LibreriaTemplate.LibreriaJSON;
 import org.example.LibreriaTemplate.LibreriaTemplate;
 import org.example.Biblioteca.Libro;
 import org.example.Biblioteca.StatoLettura;
-import org.example.Strategy.OrdinaContext;
-import org.example.Strategy.OrdinaStrategy;
-import org.example.Strategy.OrdinaValutazione;
+import org.example.Strategy.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,14 +19,15 @@ public class LibreriaGUI extends JFrame {
     private final LibreriaTemplate libreria;
     private final DefaultTableModel tableModel;
     private final OrdinaContext gestore;  // il nostro Context
+
     public LibreriaGUI(File fileJson) {
         super("Libreria");
         this.libreria = new LibreriaCSV(fileJson);
         libreria.esegui();  // carica la lista una volta sola
 
         /*
-        * Implementazione di Strategy
-        * */
+         * Implementazione di Strategy
+         * */
         gestore = new OrdinaContext(libreria.getBiblitoeca()); // Di default è impostato l'ordiinaValutazione
 
         // colonne e tabella
@@ -44,14 +43,24 @@ public class LibreriaGUI extends JFrame {
         searchBtn.addActionListener(e -> ricercaLibro());
 
         //Vado a definire i vari criteri che possono servire nell'ordinamento
-        String [] criteri = {"Valutazione", "Titolo"};
+
+        String[] criteri = {"Valutazione", "Titolo","Genere","ISBN"};
         JComboBox<String> sortBox = new JComboBox<>(criteri);
         sortBox.addActionListener(e -> {
             String criterio = (String) sortBox.getSelectedItem();
-            System.out.println("Criterio selezionato = "+criterio);
+            System.out.println("Criterio selezionato = " + criterio);
             switch (criterio) {
                 case "Valutazione":
                     gestore.setStrategy(new OrdinaValutazione());
+                    break;
+                case "Titolo":
+                    gestore.setStrategy(new OrdinaTitolo());
+                    break;
+                case "Genere":
+                    gestore.setStrategy(new OrdinaGenere());
+                    break;
+                case "ISBN":
+                    gestore.setStrategy(new OrdinaISBN());
                     break;
             }
             riempiTabella(gestore.ordina());
