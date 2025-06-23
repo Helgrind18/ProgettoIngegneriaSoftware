@@ -1,9 +1,7 @@
-package org.example.Decorator;
+package org.example.Decorator.Ricerca;
 
 import org.example.Biblioteca.Libro;
 
-import java.io.File;
-import java.lang.reflect.Field;
 import java.util.List;
 
 public class RicercaBase implements RicercaDecorator {

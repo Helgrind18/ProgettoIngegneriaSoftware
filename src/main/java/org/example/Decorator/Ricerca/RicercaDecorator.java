@@ -1,8 +1,7 @@
-package org.example.Decorator;
+package org.example.Decorator.Ricerca;
 
 import org.example.Biblioteca.Libro;
 
-import java.io.File;
 import java.util.List;
 
 public interface RicercaDecorator {

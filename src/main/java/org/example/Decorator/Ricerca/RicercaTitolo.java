@@ -1,4 +1,4 @@
-package org.example.Decorator;
+package org.example.Decorator.Ricerca;
 
 import org.example.Biblioteca.Libro;
 
