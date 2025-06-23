@@ -54,6 +54,7 @@ public class LibreriaGUI extends JFrame {
 
 
         //Questo metodo serve per rendere visibile i due bottoni, uno per eliminare ed uno per modificare il libro
+        //Vengono resi visibili nel momento in cui l'utente preme su di essi
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
