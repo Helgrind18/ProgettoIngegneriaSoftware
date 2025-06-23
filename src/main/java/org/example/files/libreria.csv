@@ -8,8 +8,10 @@
 9788806227150,Il barone rampante,Italo Calvino,Fantastico,4,IN_LEGGERE
 9788807891565,Siddharta,Hermann Hesse,Filosofico,4,DA_LEGGERE
 9788807890001,Se questo è un uomo,Primo Levi,Testimonianza,5,LETTO
-3,aaa,aaa,aaa,1,LETTO
+3,aaaaaaaaaa,aaaaaa,aaaaaaaa,1,LETTO
 4,aaaaaaaaaaaa,asd,aa,1,LETTO
-5,bbbbbbbbbbbb,bbbbbbbbbbbb,aaaabbbb,5,DA_LEGGERE
 6,aa,bb,asd,1,LETTO
-7,titolo7,autore,genere,1,DA_LEGGERE
+7,titolo7,autore,genere,10,DA_LEGGERE
+8,titolo8,autore,genere,1,LETTO
+9,titolo9,autore,genere,1,LETTO
+10,titolo10,autore,genere,1,LETTO

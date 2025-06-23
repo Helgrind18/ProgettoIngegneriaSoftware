@@ -1,227 +1,73 @@
 package org.example;
 
-
-import org.example.Decorator.Ricerca.*;
-import org.example.LibreriaTemplate.LibreriaCSV;
-import org.example.LibreriaTemplate.LibreriaJSON;
-import org.example.LibreriaTemplate.LibreriaTemplate;
 import org.example.Biblioteca.Libro;
 import org.example.Biblioteca.StatoLettura;
-import org.example.Strategy.*;
+
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class LibreriaGUI extends JFrame {
-    private final LibreriaTemplate libreria;
+    private final LibreriaFacade libreriaFacade;
     private final DefaultTableModel tableModel;
-    private final OrdinaContext gestore;  // il Context
     private final JTable table;
 
-    public LibreriaGUI(File fileJson) {
+    public LibreriaGUI(File file) {
         super("Libreria");
-        this.libreria = new LibreriaCSV(fileJson);
-        libreria.esegui();
-        this.gestore = new OrdinaContext(libreria.getBiblitoeca());
+        // Inizializzo la facade (usa CSV o JSON)
+        libreriaFacade = new LibreriaFacade(file);
 
-        // Table setup
+        // Setup tabella
         String[] colonne = {"ISBN", "Titolo", "Autore", "Genere", "Valutazione", "Stato"};
         tableModel = new DefaultTableModel(colonne, 0);
         table = new JTable(tableModel);
-        riempiTabella(gestore.ordina());
+        riempiTabella(libreriaFacade.getAll());
 
-        // Buttons
-        JButton addBtn = new JButton("Aggiungi Libro");
+        // Bottoni
+        JButton addBtn = new JButton("Aggiungi");
         JButton searchBtn = new JButton("Ricerca");
-        JButton editBtn = new JButton("Modifica selezionato");
-        JButton delBtn = new JButton("Elimina Libro");
+        JButton editBtn = new JButton("Modifica");
+        JButton delBtn = new JButton("Elimina");
 
-        //Rendo visibili solo nel momento in cui sono cliccati
         editBtn.setEnabled(false);
         delBtn.setEnabled(false);
 
-        addBtn.addActionListener(e -> aggiungiLibro());
-        searchBtn.addActionListener(e -> ricercaLibro());
-        editBtn.addActionListener(e -> modificaSelezionato());
-        delBtn.addActionListener(e -> eliminaLibro());
+        addBtn.addActionListener(e -> bottoneAggiungi());
+        searchBtn.addActionListener(e -> bottoneCerca());
+        editBtn.addActionListener(e -> bottoneModifica());
+        delBtn.addActionListener(e -> bottoneElimina());
 
-
-        //Questo metodo serve per rendere visibile i due bottoni, uno per eliminare ed uno per modificare il libro
-        //Vengono resi visibili nel momento in cui l'utente preme su di essi
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                boolean selected = table.getSelectedRow() >= 0;
-                editBtn.setEnabled(selected);
-                delBtn.setEnabled(selected);
-            }
+        // Ora implemento un metodo per permette la modifica dei libri, sono visibili solo se si preme su quel libro
+        table.getSelectionModel().addListSelectionListener(e -> {
+            boolean sel = table.getSelectedRow() >= 0;
+            editBtn.setEnabled(sel);
+            delBtn.setEnabled(sel);
         });
 
-        // Ordinamento combobox
-        JComboBox<String> ordinamento = getOrdinamento();
+        // ordinamento
+        JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN"});
+        sortBox.addActionListener(e -> riempiTabella(libreriaFacade.ordina((String) sortBox.getSelectedItem())));
 
+        // Layout
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        //Aggiungo i bottoni al pannello
         south.add(new JLabel("Ordina per:"));
-        south.add(ordinamento);
+        south.add(sortBox);
         south.add(searchBtn);
         south.add(addBtn);
         south.add(editBtn);
         south.add(delBtn);
 
-        // Frame layout
-        this.setLayout(new BorderLayout(5, 5));
-        this.add(new JScrollPane(table), BorderLayout.CENTER);
-        this.add(south, BorderLayout.SOUTH);
+        setLayout(new BorderLayout(5, 5));
+        add(new JScrollPane(table), BorderLayout.CENTER);
+        add(south, BorderLayout.SOUTH);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(800, 400);
         setLocationRelativeTo(null);
-    }
-
-    private void eliminaLibro() {
-        int riga = table.getSelectedRow(); // Prendo il libro da rimuovere
-        long isbn = (Long) tableModel.getValueAt(riga, 0);
-        Libro selezionato = libreria.getLibro(isbn);
-        System.out.println("Libro selezionato = " + selezionato);
-        if (selezionato == null)
-            return;
-        libreria.rimuoviLibro(selezionato);
-        riempiTabella(libreria.getBiblitoeca());
-    }
-
-    private void modificaSelezionato() {
-        int riga = table.getSelectedRow();
-        long isbn = (Long) tableModel.getValueAt(riga, 0);
-        Libro vecchio = libreria.getLibro(isbn);
-        System.out.println("Libro trovato = " + vecchio);
-        if (vecchio == null)
-            return;
-        Libro nuovo = aggiornaLibro(vecchio);
-        if (nuovo != null && libreria.modificaLibro(vecchio, nuovo)) {
-            riempiTabella(libreria.getBiblitoeca());
-        }
-    }
-
-    private Libro aggiornaLibro(Libro old) {
-        JTextField titoloField = new JTextField(old.getTitolo());
-        JTextField autoreField = new JTextField(old.getAutore());
-        JTextField genereField = new JTextField(old.getGenere());
-        JTextField valutazioneField = new JTextField(String.valueOf(old.getValutazione()));
-        JComboBox<StatoLettura> statoBox = new JComboBox<>(StatoLettura.values());
-        statoBox.setSelectedItem(old.getStatoLettura());
-
-        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
-        generaPanel(titoloField, autoreField, genereField, valutazioneField, statoBox, panel);
-
-        int res = JOptionPane.showConfirmDialog(
-                this, panel, "Modifica Libro",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
-        );
-        if (res != JOptionPane.OK_OPTION) return null;
-        try {
-            int val = Integer.parseInt(valutazioneField.getText().trim());
-            return new Libro(
-                    old.getISBN(),
-                    titoloField.getText().trim(),
-                    autoreField.getText().trim(),
-                    genereField.getText().trim(),
-                    val,
-                    (StatoLettura) statoBox.getSelectedItem()
-            );
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Valutazione non valida", "Errore formato",
-                    JOptionPane.ERROR_MESSAGE);
-            return null;
-        }
-    }
-
-    private void generaPanel(JTextField titoloField, JTextField autoreField, JTextField genereField, JTextField valutazioneField, JComboBox<StatoLettura> statoBox, JPanel panel) {
-        panel.add(new JLabel("Titolo:"));
-        panel.add(titoloField);
-        panel.add(new JLabel("Autore:"));
-        panel.add(autoreField);
-        panel.add(new JLabel("Genere:"));
-        panel.add(genereField);
-        panel.add(new JLabel("Valutazione:"));
-        panel.add(valutazioneField);
-        panel.add(new JLabel("Stato:"));
-        panel.add(statoBox);
-    }
-
-    private JComboBox<String> getOrdinamento() {
-        String[] criteri = {"Valutazione", "Titolo", "Genere", "ISBN"};
-        JComboBox<String> sortBox = new JComboBox<>(criteri);
-        sortBox.addActionListener(e -> {
-            String criterio = (String) sortBox.getSelectedItem();
-            System.out.println("Criterio selezionato = " + criterio);
-            switch (criterio) {
-                case "Valutazione":
-                    gestore.setStrategy(new OrdinaValutazione());
-                    break;
-                case "Titolo":
-                    gestore.setStrategy(new OrdinaTitolo());
-                    break;
-                case "Genere":
-                    gestore.setStrategy(new OrdinaGenere());
-                    break;
-                case "ISBN":
-                    gestore.setStrategy(new OrdinaISBN());
-                    break;
-            }
-            riempiTabella(gestore.ordina());
-        });
-        return sortBox;
-    }
-
-    private void ricercaLibro() {
-        JTextField titoloField = new JTextField(); // Campo per inserire il titolo
-        JTextField autoreField = new JTextField(); // Campo per inserire l'autore
-        JTextField genereField = new JTextField(); // Campo per inserire il genere
-        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
-        panel.add(new JLabel("Titolo libro:"));
-        panel.add(titoloField);
-        panel.add(new JLabel("Autore libro:"));
-        panel.add(autoreField);
-        panel.add(new JLabel("Genere libro"));
-        panel.add(genereField);
-
-        int result = JOptionPane.showConfirmDialog(
-                this, panel,
-                "Ricerca Libri",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
-
-        if (result == JOptionPane.OK_OPTION) {
-            String titolo = titoloField.getText().trim();
-            String autore = autoreField.getText().trim();
-            String genere = genereField.getText().trim();
-
-            RicercaDecorator ricerca = new RicercaBase(libreria.getBiblitoeca()); // Ottengo la lista completa
-            // Aggiungo decorator in base al campo non vuoto
-            if (!titolo.isEmpty()) {
-                ricerca = new RicercaTitolo(ricerca, titolo);
-            }
-            if (!autore.isEmpty()) {
-                ricerca = new RicercaAutore(ricerca, autore);
-            }
-            if (!genere.isEmpty()) {
-                ricerca = new RicercaGenere(ricerca, genere);
-            }
-
-            // Avvio la ricerca e popolo la tabella
-            List<Libro> risultati = ricerca.cerca();
-            riempiTabella(risultati);
-        }
     }
 
     private void riempiTabella(List<Libro> lista) {
@@ -234,75 +80,98 @@ public class LibreriaGUI extends JFrame {
         }
     }
 
+    private void bottoneAggiungi() {
+        Libro nuovo = schermataModifica(null);
+        if (nuovo != null && libreriaFacade.aggiungiLibro(nuovo)) {
+            riempiTabella(libreriaFacade.getAll());
+        }
+    }
 
-    private void aggiungiLibro() {
-        // Panel di input
+    private void bottoneCerca() {
+        String titolo = JOptionPane.showInputDialog(this, "Titolo: ");
+        String autore = JOptionPane.showInputDialog(this, "Autore: ");
+        String genere = JOptionPane.showInputDialog(this, "Genere: ");
+        List<Libro> res = libreriaFacade.cerca(titolo, autore, genere);
+        riempiTabella(res);
+    }
+
+    private void bottoneModifica() {
+        int rigaSelezionata = table.getSelectedRow();
+        if (rigaSelezionata < 0)
+            return;
+        long isbn = (Long) tableModel.getValueAt(rigaSelezionata, 0);
+        Libro vecchio = libreriaFacade.ottieniLibro(isbn);
+        if (vecchio == null)
+            return;
+        Libro nuovo = schermataModifica(vecchio);
+        if (nuovo != null && libreriaFacade.modificaLibro(vecchio, nuovo)) {
+            riempiTabella(libreriaFacade.getAll());
+        }
+    }
+
+    private void bottoneElimina() {
+        int rigaSelezionata = table.getSelectedRow();
+        if (rigaSelezionata < 0)
+            return;
+        long isbn = (Long) tableModel.getValueAt(rigaSelezionata, 0);
+        Libro selezionato = libreriaFacade.ottieniLibro(isbn);
+        if (selezionato == null)
+            return;
+        if (libreriaFacade.rimuoviLibro(selezionato))
+            riempiTabella(libreriaFacade.getAll());
+    }
+
+    private Libro schermataModifica(Libro old) {
         JTextField isbnField = new JTextField();
         JTextField titoloField = new JTextField();
         JTextField autoreField = new JTextField();
         JTextField genereField = new JTextField();
-        JTextField valutazioneField = new JTextField();
+        JTextField valField = new JTextField();
         JComboBox<StatoLettura> statoBox = new JComboBox<>(StatoLettura.values());
+        String titolo = "Modifica Libro";
+        if (old != null) {
+            isbnField.setText(String.valueOf(old.getISBN()));
+            titoloField.setText(old.getTitolo());
+            autoreField.setText(old.getAutore());
+            genereField.setText(old.getGenere());
+            valField.setText(String.valueOf(old.getValutazione()));
+            statoBox.setSelectedItem(old.getStatoLettura());
 
-        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
-        panel.add(new JLabel("ISBN:"));
-        panel.add(isbnField);
-        generaPanel(titoloField, autoreField, genereField, valutazioneField, statoBox, panel);
-
-        int result = JOptionPane.showConfirmDialog(
-                this, panel,
-                "Inserisci nuovo libro",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
-
-        if (result == JOptionPane.OK_OPTION) {
-            try {
-                long isbn = Long.parseLong(isbnField.getText().trim());
-                String titolo = titoloField.getText().trim();
-                String autore = autoreField.getText().trim();
-                String genere = genereField.getText().trim();
-                int val = Integer.parseInt(valutazioneField.getText().trim());
-                StatoLettura stato = (StatoLettura) statoBox.getSelectedItem();
-
-                Libro nuovo = new Libro(isbn, titolo, autore, genere, val, stato);
-                if (libreria.aggiungiLibro(nuovo)) {
-                    // Salvo su file
-                    libreria.scriviSuFile(nuovo);
-
-                    // Aggiungo solo la nuova riga, senza ripopolare tutta la tabella
-                    tableModel.addRow(new Object[]{
-                            nuovo.getISBN(),
-                            nuovo.getTitolo(),
-                            nuovo.getAutore(),
-                            nuovo.getGenere(),
-                            nuovo.getValutazione(),
-                            nuovo.getStatoLettura()
-                    });
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                            "Libro già presente (ISBN duplicato)!",
-                            "Errore",
-                            JOptionPane.WARNING_MESSAGE);
-                }
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this,
-                        "ISBN o valutazione non valida.",
-                        "Errore di formato",
-                        JOptionPane.ERROR_MESSAGE);
-            }
         }
+        JPanel p = new JPanel(new GridLayout(0, 2, 5, 5));
+        p.add(new JLabel("ISBN:"));
+        p.add(isbnField);
+        p.add(new JLabel("Titolo:"));
+        p.add(titoloField);
+        p.add(new JLabel("Autore:"));
+        p.add(autoreField);
+        p.add(new JLabel("Genere:"));
+        p.add(genereField);
+        p.add(new JLabel("Valutazione:"));
+        p.add(valField);
+        p.add(new JLabel("Stato:"));
+        p.add(statoBox);
+
+
+        JOptionPane.showConfirmDialog(this, p, titolo,JOptionPane.OK_CANCEL_OPTION);
+
+        try {
+            long isbn = Long.parseLong(isbnField.getText().trim());
+            int val = Integer.parseInt(valField.getText().trim());
+            return new Libro(isbn, titoloField.getText().trim(), autoreField.getText().trim(), genereField.getText().trim(), val, (StatoLettura) statoBox.getSelectedItem());
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,"Dati non validi","Errore",JOptionPane.ERROR_MESSAGE);
+            return null;
+        }
+
     }
+
 
     public static void main(String[] args) {
         File file = new File(Costanti.percorsoFileCSV);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-                System.out.println("File " + file + " inesistente, lo creo");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        if (!file.exists()) try {
+            file.createNewFile();
+        } catch (IOException ignored) {
         }
         SwingUtilities.invokeLater(() -> new LibreriaGUI(file).setVisible(true));
     }
