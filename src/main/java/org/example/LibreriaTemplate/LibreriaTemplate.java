@@ -41,6 +41,14 @@ public abstract class LibreriaTemplate {
         return l;
     }
 
+    public Libro getLibro(long isbn){
+        for (Libro l : getBiblitoeca()){
+            if (l.getISBN() == isbn)
+                return l;
+        }
+        return null;
+    }
+
     public boolean aggiungiLibro(Libro l) {
         if (biblitoeca.contains(l)) {
             System.out.println("La struttra contiene già il libro" + l + ", non lo aggiugo");
@@ -77,6 +85,21 @@ public abstract class LibreriaTemplate {
             }
         }
         System.out.println("Libro non trovato");
+        return false;
+    }
+
+    public boolean rimuoviLibro(Libro selezionato){
+        ListIterator<Libro> libroListIterator = biblitoeca.listIterator();
+        while (libroListIterator.hasNext()){
+            Libro l = libroListIterator.next();
+            if (l.equals(selezionato)) {
+                System.out.println("Libro da eliminare trovato");
+                libroListIterator.remove();
+                sovrascriviFile();
+                return true;
+            }
+        }
+        System.out.println("Non ho trovato il libro da eliminare");
         return false;
     }
 

@@ -14,6 +14,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.awt.*;
 import java.io.File;
@@ -23,6 +24,7 @@ public class LibreriaGUI extends JFrame {
     private final DefaultTableModel tableModel;
     private final OrdinaContext gestore;  // il Context
     private final JTable table;
+
     public LibreriaGUI(File fileJson) {
         super("Libreria");
         this.libreria = new LibreriaCSV(fileJson);
@@ -36,37 +38,45 @@ public class LibreriaGUI extends JFrame {
         riempiTabella(gestore.ordina());
 
         // Buttons
-        JButton addBtn    = new JButton("Aggiungi Libro");
+        JButton addBtn = new JButton("Aggiungi Libro");
         JButton searchBtn = new JButton("Ricerca");
-        JButton editBtn   = new JButton("Modifica selezionato");
+        JButton editBtn = new JButton("Modifica selezionato");
+        JButton delBtn = new JButton("Elimina Libro");
+
+        //Rendo visibili solo nel momento in cui sono cliccati
         editBtn.setEnabled(false);
+        delBtn.setEnabled(false);
 
         addBtn.addActionListener(e -> aggiungiLibro());
         searchBtn.addActionListener(e -> ricercaLibro());
         editBtn.addActionListener(e -> modificaSelezionato());
+        delBtn.addActionListener(e -> eliminaLibro());
 
-        // Enable edit button on row selection
+
+        //Questo metodo serve per rendere visibile i due bottoni, uno per eliminare ed uno per modificare il libro
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 boolean selected = table.getSelectedRow() >= 0;
                 editBtn.setEnabled(selected);
+                delBtn.setEnabled(selected);
             }
         });
 
         // Ordinamento combobox
         JComboBox<String> ordinamento = getOrdinamento();
 
-        // South panel
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        //Aggiungo i bottoni al pannello
         south.add(new JLabel("Ordina per:"));
         south.add(ordinamento);
         south.add(searchBtn);
         south.add(addBtn);
         south.add(editBtn);
+        south.add(delBtn);
 
         // Frame layout
-        this.setLayout(new BorderLayout(5,5));
+        this.setLayout(new BorderLayout(5, 5));
         this.add(new JScrollPane(table), BorderLayout.CENTER);
         this.add(south, BorderLayout.SOUTH);
 
@@ -75,30 +85,39 @@ public class LibreriaGUI extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void modificaSelezionato() {
-        int row = table.getSelectedRow();
-        if (row < 0) return;
-        long isbn = (Long) tableModel.getValueAt(row, 0);
-        Libro vecchio = libreria.getBiblitoeca().stream()
-                .filter(l -> l.getISBN() == isbn)
-                .findFirst().orElse(null);
-        if (vecchio == null) return;
+    private void eliminaLibro() {
+        int riga = table.getSelectedRow(); // Prendo il libro da rimuovere
+        long isbn = (Long) tableModel.getValueAt(riga, 0);
+        Libro selezionato = libreria.getLibro(isbn);
+        System.out.println("Libro selezionato = " + selezionato);
+        if (selezionato == null)
+            return;
+        libreria.rimuoviLibro(selezionato);
+        riempiTabella(libreria.getBiblitoeca());
+    }
 
-        Libro nuovo = showEditDialog(vecchio);
+    private void modificaSelezionato() {
+        int riga = table.getSelectedRow();
+        long isbn = (Long) tableModel.getValueAt(riga, 0);
+        Libro vecchio = libreria.getLibro(isbn);
+        System.out.println("Libro trovato = " + vecchio);
+        if (vecchio == null)
+            return;
+        Libro nuovo = aggiornaLibro(vecchio);
         if (nuovo != null && libreria.modificaLibro(vecchio, nuovo)) {
             riempiTabella(libreria.getBiblitoeca());
         }
     }
 
-    private Libro showEditDialog(Libro old) {
-        JTextField titoloField      = new JTextField(old.getTitolo());
-        JTextField autoreField      = new JTextField(old.getAutore());
-        JTextField genereField      = new JTextField(old.getGenere());
+    private Libro aggiornaLibro(Libro old) {
+        JTextField titoloField = new JTextField(old.getTitolo());
+        JTextField autoreField = new JTextField(old.getAutore());
+        JTextField genereField = new JTextField(old.getGenere());
         JTextField valutazioneField = new JTextField(String.valueOf(old.getValutazione()));
         JComboBox<StatoLettura> statoBox = new JComboBox<>(StatoLettura.values());
         statoBox.setSelectedItem(old.getStatoLettura());
 
-        JPanel panel = new JPanel(new GridLayout(0,2,5,5));
+        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
         generaPanel(titoloField, autoreField, genereField, valutazioneField, statoBox, panel);
 
         int res = JOptionPane.showConfirmDialog(
@@ -138,7 +157,7 @@ public class LibreriaGUI extends JFrame {
     }
 
     private JComboBox<String> getOrdinamento() {
-        String[] criteri = {"Valutazione", "Titolo","Genere","ISBN"};
+        String[] criteri = {"Valutazione", "Titolo", "Genere", "ISBN"};
         JComboBox<String> sortBox = new JComboBox<>(criteri);
         sortBox.addActionListener(e -> {
             String criterio = (String) sortBox.getSelectedItem();
