@@ -66,7 +66,7 @@ public class LibreriaGUI extends JFrame {
         add(south, BorderLayout.SOUTH);
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(800, 400);
+        setSize(1280, 720);
         setLocationRelativeTo(null);
     }
 
@@ -166,8 +166,6 @@ public class LibreriaGUI extends JFrame {
         p.add(valField);
         p.add(new JLabel("Stato:"));
         p.add(statoBox);
-
-
         JOptionPane.showConfirmDialog(this, p, titolo,JOptionPane.OK_CANCEL_OPTION);
 
         try {
