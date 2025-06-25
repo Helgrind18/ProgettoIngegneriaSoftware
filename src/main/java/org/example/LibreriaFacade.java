@@ -25,7 +25,10 @@ public class LibreriaFacade {
     public List<Libro> getAll(){
         return libreria.getBiblitoeca();
     }
+
     public List<Libro> cerca(String titolo, String autore, String genere){
+        System.out.println("Ricerca avviata con campi: "+titolo+" "+autore+" "+genere);
+        ricerca = new RicercaBase(libreria.getBiblitoeca()); // Ricerca base a prescindere da quello che l'utente fornisce
         // Aggiungo decorator in base al campo non vuoto
         if (!titolo.isEmpty()) {
             ricerca = new RicercaTitolo(ricerca, titolo);

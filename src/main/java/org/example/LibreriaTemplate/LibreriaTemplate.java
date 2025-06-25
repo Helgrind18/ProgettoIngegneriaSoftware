@@ -28,7 +28,7 @@ public abstract class LibreriaTemplate {
     abstract void leggiFile();
 
     //Metodo per ottenere il libro dalla linea appena letta
-    Libro ottieniLibro(String linea, String delimitatore) {
+    protected Libro ottieniLibro(String linea, String delimitatore) {
         StringTokenizer st = new StringTokenizer(linea, delimitatore);
         long isbn = Long.parseLong(st.nextToken());
         String titolo = st.nextToken();

@@ -88,11 +88,26 @@ public class LibreriaGUI extends JFrame {
     }
 
     private void bottoneCerca() {
-        String titolo = JOptionPane.showInputDialog(this, "Titolo: ");
-        String autore = JOptionPane.showInputDialog(this, "Autore: ");
-        String genere = JOptionPane.showInputDialog(this, "Genere: ");
-        List<Libro> res = libreriaFacade.cerca(titolo, autore, genere);
-        riempiTabella(res);
+        JTextField titoloField = new JTextField();
+        JTextField autoreField = new JTextField();
+        JTextField genereField = new JTextField();
+
+        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
+        panel.add(new JLabel("Titolo:"));
+        panel.add(titoloField);
+        panel.add(new JLabel("Autore:"));
+        panel.add(autoreField);
+        panel.add(new JLabel("Genere:"));
+        panel.add(genereField);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Ricerca libro", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String titolo = titoloField.getText().trim();
+            String autore = autoreField.getText().trim();
+            String genere = genereField.getText().trim();
+            List<Libro> res = libreriaFacade.cerca(titolo, autore, genere);
+            riempiTabella(res);
+        }
     }
 
     private void bottoneModifica() {
@@ -121,7 +136,7 @@ public class LibreriaGUI extends JFrame {
             riempiTabella(libreriaFacade.getAll());
     }
 
-    private Libro schermataModifica(Libro old) {
+    private Libro schermataModifica(Libro libro) {
         JTextField isbnField = new JTextField();
         JTextField titoloField = new JTextField();
         JTextField autoreField = new JTextField();
@@ -129,13 +144,13 @@ public class LibreriaGUI extends JFrame {
         JTextField valField = new JTextField();
         JComboBox<StatoLettura> statoBox = new JComboBox<>(StatoLettura.values());
         String titolo = "Modifica Libro";
-        if (old != null) {
-            isbnField.setText(String.valueOf(old.getISBN()));
-            titoloField.setText(old.getTitolo());
-            autoreField.setText(old.getAutore());
-            genereField.setText(old.getGenere());
-            valField.setText(String.valueOf(old.getValutazione()));
-            statoBox.setSelectedItem(old.getStatoLettura());
+        if (libro != null) {
+            isbnField.setText(String.valueOf(libro.getISBN()));
+            titoloField.setText(libro.getTitolo());
+            autoreField.setText(libro.getAutore());
+            genereField.setText(libro.getGenere());
+            valField.setText(String.valueOf(libro.getValutazione()));
+            statoBox.setSelectedItem(libro.getStatoLettura());
 
         }
         JPanel p = new JPanel(new GridLayout(0, 2, 5, 5));
