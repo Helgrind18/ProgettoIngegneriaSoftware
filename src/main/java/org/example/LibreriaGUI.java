@@ -9,13 +9,14 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class LibreriaGUI extends JFrame {
     private final LibreriaFacade libreriaFacade;
     private final DefaultTableModel tableModel;
     private final JTable table;
-
+    private List<Libro> currentList;
     public LibreriaGUI(File file) {
         super("Libreria");
         // Inizializzo la facade (usa CSV o JSON)
@@ -26,6 +27,8 @@ public class LibreriaGUI extends JFrame {
         tableModel = new DefaultTableModel(colonne, 0);
         table = new JTable(tableModel);
         riempiTabella(libreriaFacade.getAll());
+
+        currentList = libreriaFacade.getAll();
 
         // Bottoni
         JButton addBtn = new JButton("Aggiungi");
@@ -50,7 +53,8 @@ public class LibreriaGUI extends JFrame {
 
         // ordinamento
         JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN"});
-        sortBox.addActionListener(e -> riempiTabella(libreriaFacade.ordina((String) sortBox.getSelectedItem())));
+        sortBox.addActionListener(e -> {List<Libro> sorted = libreriaFacade.ordina(currentList, (String) sortBox.getSelectedItem());
+            riempiTabella(sorted);});
 
         // Layout
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -72,6 +76,7 @@ public class LibreriaGUI extends JFrame {
 
     private void riempiTabella(List<Libro> lista) {
         tableModel.setRowCount(0);
+        currentList = lista;
         for (Libro l : lista) {
             tableModel.addRow(new Object[]{
                     l.getISBN(), l.getTitolo(), l.getAutore(),

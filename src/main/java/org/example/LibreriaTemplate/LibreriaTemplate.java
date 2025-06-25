@@ -18,6 +18,10 @@ public abstract class LibreriaTemplate {
         return biblitoeca;
     }
 
+    public void setBiblitoeca(List<Libro> biblitoeca) {
+        this.biblitoeca = biblitoeca;
+    }
+
     //Questo metodo implementa la logica del template, ovvero permette di definire la logica, mentre le implementazioni implementeranno
     //i vari metodi
     public void esegui() {

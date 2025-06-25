@@ -17,6 +17,8 @@ public class OrdinaContext {
     public void setStrategy(OrdinaStrategy ordinaStrategy){
         this.ordinaStrategy = ordinaStrategy;
     }
+
+
     public List<Libro> ordina(){
         return ordinaStrategy.ordina(biblioteca);
     }
