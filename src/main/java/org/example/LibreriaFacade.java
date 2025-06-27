@@ -3,6 +3,7 @@ package org.example;
 import org.example.Biblioteca.Libro;
 import org.example.Decorator.Ricerca.*;
 import org.example.LibreriaTemplate.LibreriaCSV;
+import org.example.LibreriaTemplate.LibreriaJSON;
 import org.example.LibreriaTemplate.LibreriaTemplate;
 import org.example.Strategy.*;
 
@@ -17,7 +18,7 @@ public class LibreriaFacade {
     private RicercaDecorator ricerca;
 
     public LibreriaFacade(File file) {
-        this.libreria = new LibreriaCSV(file);
+        this.libreria = new LibreriaJSON(file);
         libreria.esegui();
         this.ctx = new OrdinaContext(libreria.getBiblitoeca());
         this.ricerca = new RicercaBase(libreria.getBiblitoeca()); // Ottengo la lista completa
