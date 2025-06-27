@@ -18,13 +18,13 @@ public class LibreriaFacade {
     private RicercaDecorator ricerca;
 
     public LibreriaFacade(File file) {
-        this.libreria = new LibreriaJSON(file);
-        libreria.esegui();
+        this.libreria = new LibreriaCSV(file);
         this.ctx = new OrdinaContext(libreria.getBiblitoeca());
         this.ricerca = new RicercaBase(libreria.getBiblitoeca()); // Ottengo la lista completa
     }
 
     public List<Libro> getAll() {
+        System.out.println("LibreriaFacade: getAll()");
         libreria.esegui();
         return libreria.getBiblitoeca();
     }

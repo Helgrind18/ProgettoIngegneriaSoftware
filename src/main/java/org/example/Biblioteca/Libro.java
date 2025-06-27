@@ -10,12 +10,19 @@ public class Libro implements Serializable {
     private StatoLettura statoLettura;
 
     public Libro(long ISBN, String titolo, String autore, String genere, int valutazione, StatoLettura statoLettura) {
+        if (!validazioneCampi(ISBN,titolo,autore,genere,valutazione)){
+            throw new IllegalArgumentException();
+        }
         this.ISBN = ISBN;
         this.titolo = titolo;
         this.autore = autore;
         this.genere = genere;
         this.valutazione = valutazione;
         this.statoLettura = statoLettura;
+    }
+
+    private boolean validazioneCampi(long isbn, String titolo, String autore, String genere, int valutazione) {
+        return isbn >= 0 && titolo != null && !titolo.isEmpty() && autore != null && !autore.isEmpty() && genere != null && !genere.isEmpty() && valutazione >= 0 && valutazione <= 5;
     }
 
     public long getISBN() {

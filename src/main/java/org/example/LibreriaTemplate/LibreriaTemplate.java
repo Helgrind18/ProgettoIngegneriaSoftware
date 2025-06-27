@@ -58,6 +58,10 @@ public abstract class LibreriaTemplate {
             System.out.println("La struttra contiene già il libro" + l + ", non lo aggiugo");
             return false;
         }
+        if (this.getLibro(l.getISBN()) != null){
+            System.out.println("La struttura ha già un libro con l'isbn specificato: "+l.getISBN());
+            return false;
+        }
         System.out.println("La biblioteca NON contiene il libro " + l + ", lo aggiungo");
         biblitoeca.add(l);
         return true;

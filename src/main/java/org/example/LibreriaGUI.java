@@ -26,9 +26,11 @@ public class LibreriaGUI extends JFrame {
         String[] colonne = {"ISBN", "Titolo", "Autore", "Genere", "Valutazione", "Stato"};
         tableModel = new DefaultTableModel(colonne, 0);
         table = new JTable(tableModel);
-        riempiTabella(libreriaFacade.getAll());
-
+        System.out.println("=======================================");
         currentList = libreriaFacade.getAll();
+        riempiTabella(currentList);
+        System.out.println("=======================================");
+
 
         // Bottoni
         JButton addBtn = new JButton("Aggiungi");
@@ -175,8 +177,14 @@ public class LibreriaGUI extends JFrame {
 
         try {
             long isbn = Long.parseLong(isbnField.getText().trim());
-            int val = Integer.parseInt(valField.getText().trim());
-            return new Libro(isbn, titoloField.getText().trim(), autoreField.getText().trim(), genereField.getText().trim(), val, (StatoLettura) statoBox.getSelectedItem());
+            String valText = valField.getText().trim();
+            int val = 0;
+            StatoLettura statoLettura = StatoLettura.DA_LEGGERE;
+            if (!valText.isEmpty()){
+                val = Integer.parseInt(valText);
+                statoLettura = (StatoLettura) statoBox.getSelectedItem();
+            }
+            return new Libro(isbn, titoloField.getText().trim(), autoreField.getText().trim(), genereField.getText().trim(), val, statoLettura);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this,"Dati non validi","Errore",JOptionPane.ERROR_MESSAGE);
             return null;
@@ -186,7 +194,7 @@ public class LibreriaGUI extends JFrame {
 
 
     public static void main(String[] args) {
-        File file = new File(Costanti.percorsoFileJSON);
+        File file = new File(Costanti.percorsoFileCSV);
         if (!file.exists()) try {
             file.createNewFile();
         } catch (IOException ignored) {
