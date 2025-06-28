@@ -54,6 +54,8 @@ public abstract class LibreriaTemplate {
     }
 
     public boolean aggiungiLibro(Libro l) {
+        if (l == null)
+            return false;
         if (biblitoeca.contains(l)) {
             System.out.println("La struttra contiene già il libro" + l + ", non lo aggiugo");
             return false;

@@ -42,7 +42,6 @@ public class LibreriaFacade {
         if (!genere.isEmpty()) {
             ricerca = new RicercaGenere(ricerca, genere);
         }
-
         // Avvio la ricerca
         return ricerca.cerca();
     }
