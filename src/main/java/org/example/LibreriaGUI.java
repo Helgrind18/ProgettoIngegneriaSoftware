@@ -19,9 +19,8 @@ public class LibreriaGUI extends JFrame {
     private List<Libro> currentList;
     public LibreriaGUI(File file) {
         super("Libreria");
-        // Inizializzo la facade (usa CSV o JSON)
+        // Inizializzo la facade
         libreriaFacade = new LibreriaFacade(file);
-
         // Setup tabella
         String[] colonne = {"ISBN", "Titolo", "Autore", "Genere", "Valutazione", "Stato"};
         tableModel = new DefaultTableModel(colonne, 0);
@@ -30,34 +29,29 @@ public class LibreriaGUI extends JFrame {
         currentList = libreriaFacade.getAll();
         riempiTabella(currentList);
         System.out.println("=======================================");
-
-
         // Bottoni
         JButton addBtn = new JButton("Aggiungi");
         JButton searchBtn = new JButton("Ricerca");
         JButton editBtn = new JButton("Modifica");
         JButton delBtn = new JButton("Elimina");
-
+        //Inizialmente i bottoni sono spenti, solo quando si tocca su di essi possono essere utilizzati
         editBtn.setEnabled(false);
         delBtn.setEnabled(false);
-
+        //Azioni per i bottoni
         addBtn.addActionListener(e -> bottoneAggiungi());
         searchBtn.addActionListener(e -> bottoneCerca());
         editBtn.addActionListener(e -> bottoneModifica());
         delBtn.addActionListener(e -> bottoneElimina());
-
         // Ora implemento un metodo per permette la modifica dei libri, sono visibili solo se si preme su quel libro
         table.getSelectionModel().addListSelectionListener(e -> {
             boolean sel = table.getSelectedRow() >= 0;
             editBtn.setEnabled(sel);
             delBtn.setEnabled(sel);
         });
-
         // ordinamento
         JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN"});
         sortBox.addActionListener(e -> {List<Libro> sorted = libreriaFacade.ordina(currentList, (String) sortBox.getSelectedItem());
             riempiTabella(sorted);});
-
         // Layout
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         south.add(new JLabel("Ordina per:"));
@@ -66,11 +60,9 @@ public class LibreriaGUI extends JFrame {
         south.add(addBtn);
         south.add(editBtn);
         south.add(delBtn);
-
         setLayout(new BorderLayout(5, 5));
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(south, BorderLayout.SOUTH);
-
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1280, 720);
         setLocationRelativeTo(null);
@@ -78,7 +70,7 @@ public class LibreriaGUI extends JFrame {
 
     private void riempiTabella(List<Libro> lista) {
         tableModel.setRowCount(0);
-        currentList = lista;
+        currentList = lista; //Aggiornamento della lista corrente, serve per permettere le ricerche e gli ordinamenti sulla lista mostrata a schermo e non su tutta la libreria
         for (Libro l : lista) {
             tableModel.addRow(new Object[]{
                     l.getISBN(), l.getTitolo(), l.getAutore(),
@@ -98,7 +90,6 @@ public class LibreriaGUI extends JFrame {
         JTextField titoloField = new JTextField();
         JTextField autoreField = new JTextField();
         JTextField genereField = new JTextField();
-
         JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
         panel.add(new JLabel("Titolo:"));
         panel.add(titoloField);
@@ -106,7 +97,6 @@ public class LibreriaGUI extends JFrame {
         panel.add(autoreField);
         panel.add(new JLabel("Genere:"));
         panel.add(genereField);
-
         int result = JOptionPane.showConfirmDialog(this, panel, "Ricerca libro", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             String titolo = titoloField.getText().trim();
@@ -116,7 +106,6 @@ public class LibreriaGUI extends JFrame {
             riempiTabella(res);
         }
     }
-
     private void bottoneModifica() {
         int rigaSelezionata = table.getSelectedRow();
         if (rigaSelezionata < 0)
@@ -174,7 +163,6 @@ public class LibreriaGUI extends JFrame {
         p.add(new JLabel("Stato:"));
         p.add(statoBox);
         JOptionPane.showConfirmDialog(this, p, titolo,JOptionPane.OK_CANCEL_OPTION);
-
         try {
             long isbn = Long.parseLong(isbnField.getText().trim());
             String valText = valField.getText().trim();
@@ -189,7 +177,6 @@ public class LibreriaGUI extends JFrame {
             JOptionPane.showMessageDialog(this,"Dati non validi","Errore",JOptionPane.ERROR_MESSAGE);
             return null;
         }
-
     }
 
 
