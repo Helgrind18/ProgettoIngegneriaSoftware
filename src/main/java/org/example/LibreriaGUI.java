@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class LibreriaGUI extends JFrame {
     private final LibreriaFacade libreriaFacade;
@@ -49,7 +50,7 @@ public class LibreriaGUI extends JFrame {
             delBtn.setEnabled(sel);
         });
         // ordinamento
-        JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN"});
+        JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN", "Stato"});
         sortBox.addActionListener(e -> {List<Libro> sorted = libreriaFacade.ordina(currentList, (String) sortBox.getSelectedItem());
             riempiTabella(sorted);});
         // Layout
@@ -87,22 +88,26 @@ public class LibreriaGUI extends JFrame {
     }
 
     private void bottoneCerca() {
-        JTextField titoloField = new JTextField();
-        JTextField autoreField = new JTextField();
-        JTextField genereField = new JTextField();
+        JTextField campoTitolo = new JTextField();
+        JTextField campoAutore = new JTextField();
+        JTextField campoGenere = new JTextField();
+        JTextField campoStato = new JTextField();
         JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
         panel.add(new JLabel("Titolo:"));
-        panel.add(titoloField);
+        panel.add(campoTitolo);
         panel.add(new JLabel("Autore:"));
-        panel.add(autoreField);
+        panel.add(campoAutore);
         panel.add(new JLabel("Genere:"));
-        panel.add(genereField);
+        panel.add(campoGenere);
+        panel.add(new JLabel("Stato:"));
+        panel.add(campoStato);
         int result = JOptionPane.showConfirmDialog(this, panel, "Ricerca libro", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            String titolo = titoloField.getText().trim();
-            String autore = autoreField.getText().trim();
-            String genere = genereField.getText().trim();
-            List<Libro> res = libreriaFacade.cerca(titolo, autore, genere);
+            String titolo = campoTitolo.getText().trim();
+            String autore = campoAutore.getText().trim();
+            String genere = campoGenere.getText().trim();
+            String stato = campoStato.getText().trim().toUpperCase();
+            List<Libro> res = libreriaFacade.cerca(titolo, autore, genere,stato);
             riempiTabella(res);
         }
     }

@@ -1,6 +1,8 @@
 package org.example;
 
+
 import org.example.Biblioteca.Libro;
+import org.example.Biblioteca.StatoLettura;
 import org.example.Decorator.Ricerca.*;
 import org.example.LibreriaTemplate.LibreriaCSV;
 import org.example.LibreriaTemplate.LibreriaJSON;
@@ -29,8 +31,8 @@ public class LibreriaFacade {
         return libreria.getBiblitoeca();
     }
 
-    public List<Libro> cerca(String titolo, String autore, String genere) {
-        System.out.println("Ricerca avviata con campi: " + titolo + " " + autore + " " + genere);
+    public List<Libro> cerca(String titolo, String autore, String genere, String statoLettura) {
+        System.out.println("Ricerca avviata con campi: " + titolo + " " + autore + " " + genere+" "+statoLettura);
         ricerca = new RicercaBase(libreria.getBiblitoeca()); // Ricerca base a prescindere da quello che l'utente fornisce
         // Aggiungo decorator in base al campo non vuoto
         if (!titolo.isEmpty()) {
@@ -41,6 +43,9 @@ public class LibreriaFacade {
         }
         if (!genere.isEmpty()) {
             ricerca = new RicercaGenere(ricerca, genere);
+        }
+        if (!statoLettura.isEmpty()){
+            ricerca = new RicercaStato(ricerca,StatoLettura.valueOf(statoLettura));
         }
         // Avvio la ricerca
         return ricerca.cerca();
@@ -60,6 +65,9 @@ public class LibreriaFacade {
                 break;
             case "ISBN":
                 ctx.setStrategy(new OrdinaISBN());
+                break;
+            case "Stato":
+                ctx.setStrategy(new OrdinaStatoLettura());
                 break;
             default:
                 throw new IllegalArgumentException();
