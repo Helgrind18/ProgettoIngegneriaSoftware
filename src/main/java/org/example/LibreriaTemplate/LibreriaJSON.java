@@ -13,84 +13,101 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
 
+/**
+ * Implementazione della libreria che utilizza file JSON per persistenza.
+ * Sfrutta il pattern Template Method definito in LibreriaTemplate.
+ */
 public class LibreriaJSON extends LibreriaTemplate {
+    // Array JSON che conterrà tutti i record dei libri letti dal file
+    private JSONArray libriArray;
+    // Iteratore per scorrere ciascun oggetto JSON nel JSONArray
+    private Iterator<JSONObject> iterator;
 
     public LibreriaJSON(File fileLibreria, Libreria libreria) {
-        super(fileLibreria,libreria);
+        super(fileLibreria, libreria);
     }
 
     @Override
-    public void leggiFile() {
-        // Creo il parser JSON‑Simple
+    protected void apriFile() {
+        // leggo il contenuto del file
         JSONParser parser = new JSONParser();
-
-        // Apro il FileReader in try-with-resources per chiusura automatica
-        try (FileReader fr = new FileReader(fileLibreria)) {
-            // Parsiamo l’intero contenuto del file come JSON
-            Object obj = parser.parse(fr);
-            // Castiamo a JSONArray (ci aspettiamo un array di oggetti libro)
-            JSONArray array = (JSONArray) obj;
-
-            // Scorriamo ogni elemento dell’array
-            for (Object o : array) {
-                // Ogni elemento è un JSONObject
-                JSONObject json = (JSONObject) o;
-
-                // Estraiamo i campi dal JSONObject
-                long isbn       = Long.parseLong((String) json.get("isbn"));
-                String titolo   = (String) json.get("titolo");
-                String autore   = (String) json.get("autore");
-                String genere   = (String) json.get("genere");
-                // JSON‑Simple rappresenta numeri interi come Long
-                int valutazione = ((Long)       json.get("valutazione")).intValue();
-                StatoLettura stato = StatoLettura.valueOf((String) json.get("stato"));
-
-                // Costruiamo l’istanza Libro
-                Libro libro = new Libro(isbn, titolo, autore, genere, valutazione, stato);
-
-                // Aggiungiamo alla lista interna filtrando i duplicati
-                if (super.libreria.aggiungiLibro(libro)) {
-                    System.out.println("Aggiunto: " + libro);
-                } else {
-                    System.out.println("Duplicato saltato: " + libro);
-                }
-            }
-
+        try (FileReader reader = new FileReader(fileLibreria)) {
+            // Parsiamo tutto il file in un oggetto Java
+            Object obj = parser.parse(reader);
+            // Casting dell'oggetto in JSONArray (array di record libro)
+            libriArray = (JSONArray) obj;
+            iterator = libriArray.iterator();
         } catch (IOException | ParseException e) {
-            // In caso di errore di I/O o parsing, rilanciamo come unchecked
-            throw new RuntimeException("Errore in lettura JSON", e);
+            throw new RuntimeException("Errore nell'apertura del file JSON", e);
         }
     }
 
-    /*
-    * Il file Json è un array, quindi non posso appendere come faccio in, prima devo leggere l'intero array, aggiungere all'oggetto
-    * outputArray e poi scrivere quell'oggetto sul file
-    * */
+    @Override
+    protected String leggiLinea() {
+        // Controlliamo che l'iteratore sia inizializzato e che ci siano elementi
+        if (iterator != null && iterator.hasNext()) {
+            JSONObject libroJson = iterator.next();
+            return libroJson.toJSONString();
+        } else {
+            return null; // EOF
+        }
+    }
+
+    /**
+     * Converte una stringa JSON in un oggetto Libro.
+     */
+    @Override
+    protected Libro ottieniLibro(String linea) {
+        try {
+            // Parser per la singola riga JSON
+            JSONParser parser = new JSONParser();
+            JSONObject json = (JSONObject) parser.parse(linea);
+            // Estraggo i campi dal JSONObject
+            long isbn = Long.parseLong((String) json.get("isbn"));
+            String titolo = (String) json.get("titolo");
+            String autore = (String) json.get("autore");
+            String genere = (String) json.get("genere");
+            int valutazione = ((Long) json.get("valutazione")).intValue();
+            StatoLettura stato = StatoLettura.valueOf((String) json.get("stato"));
+            // Creo e restituisco il nuovo oggetto Libro
+            return new Libro(isbn, titolo, autore, genere, valutazione, stato);
+        } catch (ParseException e) {
+            throw new RuntimeException("Errore nel parsing della riga JSON", e);
+        }
+    }
+
+    /**
+     * Chiusura del file azzeriamo le variabili per favorire la garbage collection.
+     */
+    @Override
+    protected void chiudiFile() {
+        libriArray = null;
+        iterator = null;
+    }
+
+    /**
+     * Scrive l'intera lista di libri in formato JSON sul file, sovrascrivendo quello esistente.
+     */
     @Override
     public void scriviSuFile(Libro nuovo) {
-
-        //NB: in questo metodo il libro non viene usato, serve per la classe CSV ad appenderlo
-
-        // Costruiamo un JSONArray dei libri filtrati
+        // Creiamo un nuovo JSONArray per l'output
         JSONArray outputArray = new JSONArray();
         for (Libro libro : super.getBiblitoeca()) {
-
-            // Creiamo un JSONObject per questo libro
-            long isbn = libro.getISBN();
+            // Creiamo un JSONObject per ciascun libro
             JSONObject json = new JSONObject();
-            json.put("isbn",       Long.toString(isbn));
-            json.put("titolo",     libro.getTitolo());
-            json.put("autore",     libro.getAutore());
-            json.put("genere",     libro.getGenere());
+            json.put("isbn", Long.toString(libro.getISBN()));
+            json.put("titolo", libro.getTitolo());
+            json.put("autore", libro.getAutore());
+            json.put("genere", libro.getGenere());
             json.put("valutazione", libro.getValutazione());
-            json.put("stato",      libro.getStatoLettura().name());
-
-            // Aggiungiamo l’oggetto all’array
+            json.put("stato", libro.getStatoLettura().name());
+            // Aggiungiamo l'oggetto JSON all'array di output
             outputArray.add(json);
         }
-
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria, false))) {
+            // Scriviamo la rappresentazione JSON dell'array su file
             pw.write(outputArray.toJSONString());
             pw.flush();
         } catch (IOException e) {
@@ -98,9 +115,11 @@ public class LibreriaJSON extends LibreriaTemplate {
         }
     }
 
+    /**
+     * Sovrascrive il file utilizzando scriviSuFile.
+     */
     @Override
     public void sovrascriviFile() {
         scriviSuFile(null);
     }
-
 }

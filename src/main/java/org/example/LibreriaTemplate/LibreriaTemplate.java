@@ -22,19 +22,35 @@ public abstract class LibreriaTemplate {
     }
 
     public void esegui() {
-        leggiFile();
+        apriFile();
+        while (true){
+            String linea = leggiLinea();
+            if (linea == null){
+                System.out.println("Eof");
+                break;
+            }
+            Libro l = ottieniLibro(linea);
+            if (l != null)
+                libreria.aggiungiLibro(l);
+        }
+        chiudiFile();
     }
+
+    protected abstract void apriFile();
+
+    protected abstract String leggiLinea();
+
+    protected abstract Libro ottieniLibro(String linea);
+
+    protected abstract void chiudiFile();
 
 
     public abstract void scriviSuFile(Libro nuovo);
 
-    //Consente di scrivere sul file
-    abstract void leggiFile();
 
     //Consente di modificare il libro. Nota bene: non posso modificare un file, non posso inserire in mezzo un libro modificato
     public abstract void sovrascriviFile();
 
-    //i vari metodi
     protected Libro ottieniLibro(String linea, String delimitatore) {
         StringTokenizer st = new StringTokenizer(linea, delimitatore);
         long isbn = Long.parseLong(st.nextToken());

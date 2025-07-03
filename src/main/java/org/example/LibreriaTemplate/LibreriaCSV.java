@@ -7,34 +7,48 @@ import java.io.*;
 
 public class LibreriaCSV extends LibreriaTemplate {
     public LibreriaCSV(File fileLibreria, Libreria libreria) {
-        super(fileLibreria,libreria);
+        super(fileLibreria, libreria);
     }
 
+    private BufferedReader reader;
+
     @Override
-    void leggiFile() {
+    protected void apriFile() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(fileLibreria));
-            while (true){
-                String linea = br.readLine();
-                if (linea == null){
-                    System.out.println("EOF!");
-                    br.close();
-                    return;
-                }
-                System.out.println("Linea letta = "+linea);
-                Libro l = super.ottieniLibro(linea,",");
-                if (super.libreria.aggiungiLibro(l)){
-                    System.out.println("Libro "+l +" aggiunto correttametne");
-                }
-            }
+            reader = new BufferedReader(new FileReader(fileLibreria));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Errore nell'apertura del file CSV", e);
         }
     }
 
     @Override
+    protected String leggiLinea() {
+        try {
+            return reader.readLine();
+        } catch (IOException e) {
+            throw new RuntimeException("Errore nella lettura della linea da CSV", e);
+        }
+    }
+
+    @Override
+    protected Libro ottieniLibro(String linea) {
+        return super.ottieniLibro(linea, ",");
+    }
+
+    @Override
+    protected void chiudiFile() {
+        try {
+            if (reader != null)
+                reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Errore nella chiusura del file CSV", e);
+        }
+    }
+
+
+    @Override
     public void scriviSuFile(Libro nuovo) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria,true),true)) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria, true), true)) {
             pw.println(nuovo.getISBN() + "," +
                     nuovo.getTitolo() + "," +
                     nuovo.getAutore() + "," +

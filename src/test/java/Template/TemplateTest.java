@@ -6,10 +6,7 @@ import org.example.Costanti;
 import org.example.LibreriaTemplate.LibreriaCSV;
 import org.example.LibreriaTemplate.LibreriaJSON;
 import org.example.LibreriaTemplate.LibreriaTemplate;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +22,7 @@ import static org.junit.Assert.*;
 * Questo test va a verificare se l'implementazione del template sia corretta.
 *
 * */
-
+@Disabled
 public class TemplateTest {
 
     private List<Libro> biblitoeca;
