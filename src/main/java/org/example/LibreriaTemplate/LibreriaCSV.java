@@ -1,12 +1,13 @@
 package org.example.LibreriaTemplate;
 
+import org.example.Biblioteca.Libreria;
 import org.example.Biblioteca.Libro;
 
 import java.io.*;
 
 public class LibreriaCSV extends LibreriaTemplate {
-    public LibreriaCSV(File fileLibreria) {
-        super(fileLibreria);
+    public LibreriaCSV(File fileLibreria, Libreria libreria) {
+        super(fileLibreria,libreria);
     }
 
     @Override
@@ -22,7 +23,7 @@ public class LibreriaCSV extends LibreriaTemplate {
                 }
                 System.out.println("Linea letta = "+linea);
                 Libro l = super.ottieniLibro(linea,",");
-                if (super.aggiungiLibro(l)){
+                if (super.libreria.aggiungiLibro(l)){
                     System.out.println("Libro "+l +" aggiunto correttametne");
                 }
             }
@@ -46,7 +47,7 @@ public class LibreriaCSV extends LibreriaTemplate {
     }
 
     @Override
-    protected void sovrascriviFile() {
+    public void sovrascriviFile() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria, false))) {
             for (Libro l : getBiblitoeca()) {
                 pw.println(

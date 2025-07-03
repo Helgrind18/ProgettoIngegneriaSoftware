@@ -1,5 +1,6 @@
 package org.example.LibreriaTemplate;
 
+import org.example.Biblioteca.Libreria;
 import org.example.Biblioteca.Libro;
 import org.example.Biblioteca.StatoLettura;
 import org.json.simple.JSONArray;
@@ -15,8 +16,8 @@ import java.io.PrintWriter;
 
 public class LibreriaJSON extends LibreriaTemplate {
 
-    public LibreriaJSON(File fileLibreria) {
-        super(fileLibreria);
+    public LibreriaJSON(File fileLibreria, Libreria libreria) {
+        super(fileLibreria,libreria);
     }
 
     @Override
@@ -38,9 +39,9 @@ public class LibreriaJSON extends LibreriaTemplate {
 
                 // Estraiamo i campi dal JSONObject
                 long isbn       = Long.parseLong((String) json.get("isbn"));
-                String titolo   = (String)      json.get("titolo");
-                String autore   = (String)      json.get("autore");
-                String genere   = (String)      json.get("genere");
+                String titolo   = (String) json.get("titolo");
+                String autore   = (String) json.get("autore");
+                String genere   = (String) json.get("genere");
                 // JSON‑Simple rappresenta numeri interi come Long
                 int valutazione = ((Long)       json.get("valutazione")).intValue();
                 StatoLettura stato = StatoLettura.valueOf((String) json.get("stato"));
@@ -49,7 +50,7 @@ public class LibreriaJSON extends LibreriaTemplate {
                 Libro libro = new Libro(isbn, titolo, autore, genere, valutazione, stato);
 
                 // Aggiungiamo alla lista interna filtrando i duplicati
-                if (aggiungiLibro(libro)) {
+                if (super.libreria.aggiungiLibro(libro)) {
                     System.out.println("Aggiunto: " + libro);
                 } else {
                     System.out.println("Duplicato saltato: " + libro);
@@ -98,7 +99,7 @@ public class LibreriaJSON extends LibreriaTemplate {
     }
 
     @Override
-    protected void sovrascriviFile() {
+    public void sovrascriviFile() {
         scriviSuFile(null);
     }
 

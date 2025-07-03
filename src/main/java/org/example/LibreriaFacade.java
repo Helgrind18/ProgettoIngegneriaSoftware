@@ -1,6 +1,8 @@
 package org.example;
 
 
+import org.example.Biblioteca.Libreria;
+import org.example.Biblioteca.LibreriaLista;
 import org.example.Biblioteca.Libro;
 import org.example.Biblioteca.StatoLettura;
 import org.example.Decorator.Ricerca.*;
@@ -16,19 +18,21 @@ import java.util.List;
 public class LibreriaFacade {
     //Questa classe deve aggiungere un grado di indirezzamento fra il client ed il resto del sistema.
     private LibreriaTemplate libreria;
+    private Libreria biblioteca = new LibreriaLista();
     private OrdinaContext ctx;
     private RicercaDecorator ricerca;
 
     public LibreriaFacade(File file) {
-        this.libreria = new LibreriaCSV(file);
+        this.libreria = new LibreriaCSV(file,biblioteca);
         this.ctx = new OrdinaContext(libreria.getBiblitoeca());
         this.ricerca = new RicercaBase(libreria.getBiblitoeca()); // Ottengo la lista completa
     }
 
     public List<Libro> getAll() {
-        System.out.println("LibreriaFacade: getAll()");
+        System.out.println("Libreria: getAll()");
         libreria.esegui();
-        return libreria.getBiblitoeca();
+        return biblioteca.getAll();
+
     }
 
     public List<Libro> cerca(String titolo, String autore, String genere, String statoLettura) {
@@ -76,7 +80,7 @@ public class LibreriaFacade {
     }
 
     public boolean aggiungiLibro(Libro l) {
-        boolean aggiunto = libreria.aggiungiLibro(l);
+        boolean aggiunto = biblioteca.aggiungiLibro(l);
         if (aggiunto) {
             libreria.scriviSuFile(l);
         }
@@ -84,15 +88,21 @@ public class LibreriaFacade {
     }
 
     public boolean modificaLibro(Libro vecchio, Libro nuovo) {
-        return libreria.modificaLibro(vecchio, nuovo);
+        boolean modifica = biblioteca.modificaLibro(vecchio,nuovo);
+        if (modifica)
+            libreria.sovrascriviFile();
+        return modifica;
     }
 
     public boolean rimuoviLibro(Libro l) {
-        return libreria.rimuoviLibro(l);
+        boolean rimozione = biblioteca.rimuoviLibro(l);
+        if (rimozione)
+            libreria.sovrascriviFile();
+        return rimozione;
     }
 
     public Libro ottieniLibro(long isbn) {
-        return libreria.getLibro(isbn);
+        return biblioteca.getLibro(isbn);
     }
 
 }
