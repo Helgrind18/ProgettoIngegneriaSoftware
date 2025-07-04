@@ -24,8 +24,8 @@ public class LibreriaFacade {
 
     public LibreriaFacade(File file) {
         this.libreria = new LibreriaCSV(file,biblioteca);
-        this.ctx = new OrdinaContext(libreria.getBiblitoeca());
-        this.ricerca = new RicercaBase(libreria.getBiblitoeca()); // Ottengo la lista completa
+        this.ctx = new OrdinaContext(biblioteca.getAll());
+        this.ricerca = new RicercaBase(biblioteca.getAll()); // Ottengo la lista completa
     }
 
     public List<Libro> getAll() {
@@ -37,7 +37,7 @@ public class LibreriaFacade {
 
     public List<Libro> cerca(String titolo, String autore, String genere, String statoLettura) {
         System.out.println("Ricerca avviata con campi: " + titolo + " " + autore + " " + genere+" "+statoLettura);
-        ricerca = new RicercaBase(libreria.getBiblitoeca()); // Ricerca base a prescindere da quello che l'utente fornisce
+        ricerca = new RicercaBase(biblioteca.getAll()); // Ricerca base a prescindere da quello che l'utente fornisce
         // Aggiungo decorator in base al campo non vuoto
         if (!titolo.isEmpty()) {
             ricerca = new RicercaTitolo(ricerca, titolo);
