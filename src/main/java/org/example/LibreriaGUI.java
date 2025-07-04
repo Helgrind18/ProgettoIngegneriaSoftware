@@ -186,7 +186,7 @@ public class LibreriaGUI extends JFrame {
 
 
     public static void main(String[] args) {
-        File file = new File(Costanti.percorsoFileCSV);
+        File file = new File(Costanti.percorsoFileJSONLinux);
         if (!file.exists()) try {
             file.createNewFile();
         } catch (IOException ignored) {
