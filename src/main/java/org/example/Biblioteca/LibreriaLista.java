@@ -21,15 +21,20 @@ public class LibreriaLista implements Libreria {
 
     @Override
     public boolean modificaLibro(Libro vecchio, Libro nuovo) {
+        if (nuovo == null) return false;
+        if (vecchio.getISBN() != nuovo.getISBN()) {
+            System.out.println("Modifica di isbn non permessa");
+            return false;
+        }
         int index = libreria.indexOf(vecchio);
-        if (index == -1 || nuovo == null)
+        if (index == -1)
             return false;
         libreria.set(index, nuovo);
         return true;
     }
 
 
-    public List<Libro> getAll(){
+    public List<Libro> getAll() {
         System.out.println("-------- getAll() -----------");
         System.out.println(libreria);
         return this.libreria;
