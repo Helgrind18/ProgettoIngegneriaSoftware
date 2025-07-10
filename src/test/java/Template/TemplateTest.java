@@ -1,6 +1,7 @@
 package Template;
 
 import org.example.Biblioteca.Libro;
+import org.example.Biblioteca.LibreriaLista;
 import org.example.Biblioteca.StatoLettura;
 import org.example.Costanti;
 import org.example.LibreriaTemplate.LibreriaCSV;
@@ -15,88 +16,77 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*; // Usiamo JUnit 5 invece di JUnit 4
 
-
-/*
-* Questo test va a verificare se l'implementazione del template sia corretta.
-*
-* */
-@Disabled
 public class TemplateTest {
 
     private List<Libro> biblitoeca;
     private LibreriaTemplate libreriaTemplate;
     private File fileTemporaneo;
-
+    private LibreriaLista libreriaLista;
     @BeforeEach
     public void setup() throws IOException {
-        //Al fine di non toccare il file originale, vado a creare una copia di esso. è solo per test, alla fine verrà rimosso
+        // Creo copia del file CSV originale per i test
         Path originalPath = Path.of(Costanti.percorsoFileCSVTest);
         Path tempPath = Files.createTempFile("testFile_", ".csv");
         Files.copy(originalPath, tempPath, StandardCopyOption.REPLACE_EXISTING);
         fileTemporaneo = tempPath.toFile();
-
-        libreriaTemplate = new LibreriaCSV(fileTemporaneo);
+        libreriaLista = new LibreriaLista();
+        libreriaTemplate = new LibreriaCSV(fileTemporaneo, libreriaLista);
         libreriaTemplate.esegui();
     }
 
     @Test
     @DisplayName("Test lettura file csv")
-    public void leggiCSV(){
-        libreriaTemplate = new LibreriaCSV(new File(Costanti.percorsoFileCSVTest));
-        libreriaTemplate.esegui(); //Viene eseguito l'algoritmo
+    public void leggiCSV() {
+        libreriaTemplate.esegui();
         this.biblitoeca = libreriaTemplate.getBiblitoeca();
-        assertEquals(2,this.biblitoeca.size());
+
+        assertEquals(2, this.biblitoeca.size());
         assertEquals("Libro A", this.biblitoeca.get(0).getTitolo());
         assertEquals(StatoLettura.LETTO, this.biblitoeca.get(1).getStatoLettura());
-
     }
 
     @Test
     @DisplayName("Test lettura file json")
-    public void leggiJSON(){
-        libreriaTemplate = new LibreriaJSON(new File(Costanti.percorsoFileJSONTest));
-        libreriaTemplate.esegui(); //Viene eseguito l'algoritmo
+    public void leggiJSON() {
+        libreriaTemplate = new LibreriaJSON(new File(Costanti.percorsoFileJSONTest), new LibreriaLista());
+        libreriaTemplate.esegui();
         this.biblitoeca = libreriaTemplate.getBiblitoeca();
-        assertEquals(2,this.biblitoeca.size());
+
+        assertEquals(2, this.biblitoeca.size());
         assertEquals("I fratelli Karamazov", this.biblitoeca.get(0).getTitolo());
         assertEquals(StatoLettura.LETTO, this.biblitoeca.get(1).getStatoLettura());
     }
 
     @Test
     @DisplayName("Test aggiunta libro")
-    public void aggiungiLibro(){
+    public void aggiungiLibro() {
         Libro l = new Libro(3L, "Libro A", "Autore A", "Genere A", 3, StatoLettura.LETTO);
-        assertTrue(libreriaTemplate.aggiungiLibro(l));
+        assertTrue(libreriaLista.aggiungiLibro(l));
         libreriaTemplate.scriviSuFile(l);
-        assertFalse(libreriaTemplate.aggiungiLibro(l)); //Deve essere falso perchè il libro è già presente
+        assertFalse(libreriaLista.aggiungiLibro(l)); // Libro già presente
     }
 
     @Test
     @DisplayName("Test modifica Libro")
-    public void modificaLibro(){
-        Libro vecchio = libreriaTemplate.getLibro(1);
-        Libro nuovo = new Libro(vecchio.getISBN(),vecchio.getTitolo(),vecchio.getAutore(),vecchio.getGenere(),vecchio.getValutazione(),vecchio.getStatoLettura());
-        nuovo.setGenere("nuovo genere test");
-        nuovo.setAutore("nuovo autore test");
-        assertTrue(libreriaTemplate.modificaLibro(vecchio,nuovo));
+    public void modificaLibro() {
+        Libro vecchio = libreriaLista.getLibro(1);
+        Libro nuovo = new Libro(vecchio.getISBN(), vecchio.getTitolo(), "nuovo autore test", "nuovo genere test", vecchio.getValutazione(), vecchio.getStatoLettura());
+        assertTrue(libreriaLista.modificaLibro(vecchio, nuovo));
     }
 
     @Test
     @DisplayName("Test rimuovi Libro")
-    public void rimuoviLibro(){
-        Libro vecchio = libreriaTemplate.getLibro(2);
-        assertTrue(libreriaTemplate.rimuoviLibro(vecchio));
+    public void rimuoviLibro() {
+        Libro vecchio = libreriaLista.getLibro(2);
+        assertTrue(libreriaLista.rimuoviLibro(vecchio));
     }
-
 
     @AfterEach
     public void cleanup() {
-        //Vado ad eliminare il file di test temporaneo
         if (fileTemporaneo != null && fileTemporaneo.exists()) {
             fileTemporaneo.delete();
         }
     }
-
 }
