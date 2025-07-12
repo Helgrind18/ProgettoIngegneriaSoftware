@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.Biblioteca.Libro;
 import org.example.Biblioteca.StatoLettura;
+import org.example.Command.*;
 
 
 import javax.swing.*;
@@ -15,52 +16,60 @@ import java.util.Locale;
 
 public class LibreriaGUI extends JFrame {
     private final LibreriaFacade libreriaFacade;
-    private final DefaultTableModel tableModel;
-    private final JTable table;
+    private final DefaultTableModel tableModel; //Struttura che tiene traccia delle righe e delle colonne da visualizzare
+    private final JTable table; // La uso per mostrare i dati in forma tabellare. Usa il defaultTableModel per sapere cosa mostrare
     private List<Libro> currentList;
+    private Command aggiunta;
+    private Command cerca;
+    private Command modifica;
+    private Command elimina;
     public LibreriaGUI(File file) {
         super("Libreria");
         // Inizializzo la facade
         libreriaFacade = new LibreriaFacade(file);
+        // Inizializzo i vari comandi
+        this.aggiunta = new Aggiunta(libreriaFacade,this);
+        this.cerca = new Cerca(libreriaFacade,this);
+        this.modifica = new Modifica(libreriaFacade,this);
+        this.elimina = new Elimina(libreriaFacade,this);
         // Setup tabella
         String[] colonne = {"ISBN", "Titolo", "Autore", "Genere", "Valutazione", "Stato"};
-        tableModel = new DefaultTableModel(colonne, 0);
-        table = new JTable(tableModel);
+        tableModel = new DefaultTableModel(colonne, 0); // Il modello contiene le colonne da visualizzare, in questo modo gliele sto passando
+        table = new JTable(tableModel); // Creo una tabella che mostra i dati contenuti nel modello.
         System.out.println("=======================================");
         currentList = libreriaFacade.getAll();
         riempiTabella(currentList);
         System.out.println("=======================================");
         // Bottoni
-        JButton addBtn = new JButton("Aggiungi");
-        JButton searchBtn = new JButton("Ricerca");
-        JButton editBtn = new JButton("Modifica");
-        JButton delBtn = new JButton("Elimina");
-        //Inizialmente i bottoni sono spenti, solo quando si tocca su di essi possono essere utilizzati
-        editBtn.setEnabled(false);
-        delBtn.setEnabled(false);
+        JButton aggiungi = new JButton("Aggiungi");
+        JButton ricerca = new JButton("Ricerca");
+        JButton modifica = new JButton("Modifica");
+        JButton elimina = new JButton("Elimina");
+        //Inizialmente i bottoni sono spenti, solo quando si tocca su un libro possono essere utilizzati
+        modifica.setEnabled(false);
+        elimina.setEnabled(false);
         //Azioni per i bottoni
-        addBtn.addActionListener(e -> bottoneAggiungi());
-        searchBtn.addActionListener(e -> bottoneCerca());
-        editBtn.addActionListener(e -> bottoneModifica());
-        delBtn.addActionListener(e -> bottoneElimina());
+        aggiungi.addActionListener(e -> this.aggiunta.execute());
+        ricerca.addActionListener(e -> this.cerca.execute());
+        modifica.addActionListener(e -> this.modifica.execute());
+        elimina.addActionListener(e -> this.elimina.execute());
+        JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN", "Stato"});
+        sortBox.addActionListener(e -> {
+            new Ordina((String) sortBox.getSelectedItem(),libreriaFacade,this).execute();
+        });
         // Ora implemento un metodo per permette la modifica dei libri, sono visibili solo se si preme su quel libro
         table.getSelectionModel().addListSelectionListener(e -> {
-            boolean sel = table.getSelectedRow() >= 0;
-            editBtn.setEnabled(sel);
-            delBtn.setEnabled(sel);
+            modifica.setEnabled(true);
+            elimina.setEnabled(true);
         });
-        // ordinamento
-        JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN", "Stato"});
-        sortBox.addActionListener(e -> {List<Libro> sorted = libreriaFacade.ordina(currentList, (String) sortBox.getSelectedItem());
-            riempiTabella(sorted);});
         // Layout
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         south.add(new JLabel("Ordina per:"));
         south.add(sortBox);
-        south.add(searchBtn);
-        south.add(addBtn);
-        south.add(editBtn);
-        south.add(delBtn);
+        south.add(ricerca);
+        south.add(aggiungi);
+        south.add(modifica);
+        south.add(elimina);
         setLayout(new BorderLayout(5, 5));
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(south, BorderLayout.SOUTH);
@@ -69,10 +78,23 @@ public class LibreriaGUI extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    private void riempiTabella(List<Libro> lista) {
+    public DefaultTableModel getTableModel() {
+        return tableModel;
+    }
+
+    public JTable getTable() {
+        return table;
+    }
+
+    public List<Libro> getCurrentList() {
+        return currentList;
+    }
+
+    public void riempiTabella(List<Libro> lista) {
         tableModel.setRowCount(0);
         currentList = lista; //Aggiornamento della lista corrente, serve per permettere le ricerche e gli ordinamenti sulla lista mostrata a schermo e non su tutta la libreria
         for (Libro l : lista) {
+            //Devo aggiungere il libro al modello, per farlo devo prendere i campi specifici che devono riempire le colonne
             tableModel.addRow(new Object[]{
                     l.getISBN(), l.getTitolo(), l.getAutore(),
                     l.getGenere(), l.getValutazione(), l.getStatoLettura()
@@ -80,64 +102,7 @@ public class LibreriaGUI extends JFrame {
         }
     }
 
-    private void bottoneAggiungi() {
-        Libro nuovo = schermataModifica(null);
-        if (nuovo != null && libreriaFacade.aggiungiLibro(nuovo)) {
-            riempiTabella(libreriaFacade.getAll());
-        }
-    }
-
-    private void bottoneCerca() {
-        JTextField campoTitolo = new JTextField();
-        JTextField campoAutore = new JTextField();
-        JTextField campoGenere = new JTextField();
-        JTextField campoStato = new JTextField();
-        JPanel panel = new JPanel(new GridLayout(0, 2, 5, 5));
-        panel.add(new JLabel("Titolo:"));
-        panel.add(campoTitolo);
-        panel.add(new JLabel("Autore:"));
-        panel.add(campoAutore);
-        panel.add(new JLabel("Genere:"));
-        panel.add(campoGenere);
-        panel.add(new JLabel("Stato:"));
-        panel.add(campoStato);
-        int result = JOptionPane.showConfirmDialog(this, panel, "Ricerca libro", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            String titolo = campoTitolo.getText().trim();
-            String autore = campoAutore.getText().trim();
-            String genere = campoGenere.getText().trim();
-            String stato = campoStato.getText().trim().toUpperCase();
-            List<Libro> res = libreriaFacade.cerca(titolo, autore, genere,stato);
-            riempiTabella(res);
-        }
-    }
-    private void bottoneModifica() {
-        int rigaSelezionata = table.getSelectedRow();
-        if (rigaSelezionata < 0)
-            return;
-        long isbn = (Long) tableModel.getValueAt(rigaSelezionata, 0);
-        Libro vecchio = libreriaFacade.ottieniLibro(isbn);
-        if (vecchio == null)
-            return;
-        Libro nuovo = schermataModifica(vecchio);
-        if (nuovo != null && libreriaFacade.modificaLibro(vecchio, nuovo)) {
-            riempiTabella(libreriaFacade.getAll());
-        }
-    }
-
-    private void bottoneElimina() {
-        int rigaSelezionata = table.getSelectedRow();
-        if (rigaSelezionata < 0)
-            return;
-        long isbn = (Long) tableModel.getValueAt(rigaSelezionata, 0);
-        Libro selezionato = libreriaFacade.ottieniLibro(isbn);
-        if (selezionato == null)
-            return;
-        if (libreriaFacade.rimuoviLibro(selezionato))
-            riempiTabella(libreriaFacade.getAll());
-    }
-
-    private Libro schermataModifica(Libro libro) {
+    public Libro schermataModifica(Libro libro) {
         JTextField isbnField = new JTextField();
         JTextField titoloField = new JTextField();
         JTextField autoreField = new JTextField();
@@ -167,19 +132,19 @@ public class LibreriaGUI extends JFrame {
         p.add(valField);
         p.add(new JLabel("Stato:"));
         p.add(statoBox);
-        JOptionPane.showConfirmDialog(this, p, titolo,JOptionPane.OK_CANCEL_OPTION);
+        JOptionPane.showConfirmDialog(this, p, titolo, JOptionPane.OK_CANCEL_OPTION);
         try {
             long isbn = Long.parseLong(isbnField.getText().trim());
             String valText = valField.getText().trim();
             int val = 0;
             StatoLettura statoLettura = StatoLettura.DA_LEGGERE;
-            if (!valText.isEmpty()){
+            if (!valText.isEmpty()) {
                 val = Integer.parseInt(valText);
                 statoLettura = (StatoLettura) statoBox.getSelectedItem();
             }
             return new Libro(isbn, titoloField.getText().trim(), autoreField.getText().trim(), genereField.getText().trim(), val, statoLettura);
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,"Dati non validi","Errore",JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Dati non validi", "Errore", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
