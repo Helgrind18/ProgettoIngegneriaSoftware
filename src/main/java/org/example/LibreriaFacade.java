@@ -23,7 +23,7 @@ public class LibreriaFacade {
     private RicercaDecorator ricerca;
 
     public LibreriaFacade(File file) {
-        this.libreria = new LibreriaJSON(file,biblioteca); // Scelgo quale tipologia del file leggere
+        this.libreria = new LibreriaCSV(file,biblioteca); // Scelgo quale tipologia del file leggere
         this.ctx = new OrdinaContext(biblioteca.getAll());
         this.ricerca = new RicercaBase(biblioteca.getAll()); // Ottengo la lista completa
     }
