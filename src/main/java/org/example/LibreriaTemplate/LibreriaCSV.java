@@ -10,7 +10,7 @@ public class LibreriaCSV extends LibreriaTemplate {
         super(fileLibreria, libreria);
     }
 
-    private BufferedReader reader;
+    private BufferedReader reader; // variabile necessaria per poter aprire il file e leggere linea per linea
 
     @Override
     protected void apriFile() {

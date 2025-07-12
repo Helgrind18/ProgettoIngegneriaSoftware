@@ -14,25 +14,23 @@ import org.example.Strategy.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
+//Questa classe deve aggiungere un grado di indirizzamento fra il client ed il resto del sistema.
+//Aumentando l'indipendenza fra la rappresentazione dell'oggetto e l'utilizzo del sistema
 public class LibreriaFacade {
-    //Questa classe deve aggiungere un grado di indirezzamento fra il client ed il resto del sistema.
     private LibreriaTemplate libreria;
     private Libreria biblioteca = new LibreriaLista();
     private OrdinaContext ctx;
     private RicercaDecorator ricerca;
 
     public LibreriaFacade(File file) {
-        this.libreria = new LibreriaJSON(file,biblioteca);
+        this.libreria = new LibreriaJSON(file,biblioteca); // Scelgo quale tipologia del file leggere
         this.ctx = new OrdinaContext(biblioteca.getAll());
         this.ricerca = new RicercaBase(biblioteca.getAll()); // Ottengo la lista completa
     }
-
     public List<Libro> getAll() {
         System.out.println("Libreria: getAll()");
         libreria.esegui();
         return biblioteca.getAll();
-
     }
 
     public List<Libro> cerca(String titolo, String autore, String genere, String statoLettura) {

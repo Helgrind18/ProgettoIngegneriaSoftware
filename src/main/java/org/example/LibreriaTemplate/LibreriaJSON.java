@@ -20,10 +20,9 @@ import java.util.Iterator;
  * Sfrutta il pattern Template Method definito in LibreriaTemplate.
  */
 public class LibreriaJSON extends LibreriaTemplate {
-    // Array JSON che conterrà tutti i record dei libri letti dal file
-    private JSONArray libriArray;
-    // Iteratore per scorrere ciascun oggetto JSON nel JSONArray
-    private Iterator<JSONObject> iterator;
+    private JSONArray libriArray; // Array JSON che conterrà tutti i libri letti dal file
+    private Iterator<JSONObject> iterator;  // Iteratore per scorrere ciascun oggetto JSON nel JSONArray
+    JSONParser parser = new JSONParser(); // legge il testo in formato json
 
     public LibreriaJSON(File fileLibreria, Libreria libreria) {
         super(fileLibreria, libreria);
@@ -32,11 +31,10 @@ public class LibreriaJSON extends LibreriaTemplate {
     @Override
     protected void apriFile() {
         // leggo il contenuto del file
-        JSONParser parser = new JSONParser();
         try (FileReader reader = new FileReader(fileLibreria)) {
-            // Parsiamo tutto il file in un oggetto Java
+            // Parsing di tutto il file in un oggetto Java
             Object obj = parser.parse(reader);
-            // Casting dell'oggetto in JSONArray (array di record libro)
+            // Casting dell'oggetto in JSONArray
             libriArray = (JSONArray) obj;
             iterator = libriArray.iterator();
         } catch (IOException | ParseException e) {
@@ -46,7 +44,7 @@ public class LibreriaJSON extends LibreriaTemplate {
 
     @Override
     protected String leggiLinea() {
-        // Controlliamo che l'iteratore sia inizializzato e che ci siano elementi
+        // Controllo che l'iteratore sia inizializzato e che ci siano elementi
         if (iterator != null && iterator.hasNext()) {
             JSONObject libroJson = iterator.next();
             return libroJson.toJSONString();
@@ -62,7 +60,6 @@ public class LibreriaJSON extends LibreriaTemplate {
     protected Libro ottieniLibro(String linea) {
         try {
             // Parser per la singola riga JSON
-            JSONParser parser = new JSONParser();
             JSONObject json = (JSONObject) parser.parse(linea);
             // Estraggo i campi dal JSONObject
             long isbn = Long.parseLong((String) json.get("isbn"));
@@ -92,10 +89,10 @@ public class LibreriaJSON extends LibreriaTemplate {
      */
     @Override
     public void scriviSuFile(Libro nuovo) {
-        // Creiamo un nuovo JSONArray per l'output
+        // Creo un nuovo JSONArray per l'output
         JSONArray outputArray = new JSONArray();
         for (Libro libro : super.getBiblitoeca()) {
-            // Creiamo un JSONObject per ciascun libro
+            // Creo un JSONObject per ciascun libro
             JSONObject json = new JSONObject();
             json.put("isbn", Long.toString(libro.getISBN()));
             json.put("titolo", libro.getTitolo());
@@ -103,11 +100,10 @@ public class LibreriaJSON extends LibreriaTemplate {
             json.put("genere", libro.getGenere());
             json.put("valutazione", libro.getValutazione());
             json.put("stato", libro.getStatoLettura().name());
-            // Aggiungiamo l'oggetto JSON all'array di output
+            // Aggiunta dell'oggetto JSON all'array di output
             outputArray.add(json);
         }
         try (PrintWriter pw = new PrintWriter(new FileWriter(fileLibreria, false))) {
-            // Scriviamo la rappresentazione JSON dell'array su file
             pw.write(outputArray.toJSONString());
             pw.flush();
         } catch (IOException e) {

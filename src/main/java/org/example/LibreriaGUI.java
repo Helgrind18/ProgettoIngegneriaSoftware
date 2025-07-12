@@ -63,16 +63,16 @@ public class LibreriaGUI extends JFrame {
             elimina.setEnabled(true);
         });
         // Layout
-        JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        south.add(new JLabel("Ordina per:"));
-        south.add(sortBox);
-        south.add(ricerca);
-        south.add(aggiungi);
-        south.add(modifica);
-        south.add(elimina);
+        JPanel pannello = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        pannello.add(new JLabel("Ordina per:"));
+        pannello.add(sortBox);
+        pannello.add(ricerca);
+        pannello.add(aggiungi);
+        pannello.add(modifica);
+        pannello.add(elimina);
         setLayout(new BorderLayout(5, 5));
         add(new JScrollPane(table), BorderLayout.CENTER);
-        add(south, BorderLayout.SOUTH);
+        add(pannello, BorderLayout.SOUTH);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setSize(1280, 720);
         setLocationRelativeTo(null);
@@ -103,46 +103,45 @@ public class LibreriaGUI extends JFrame {
     }
 
     public Libro schermataModifica(Libro libro) {
-        JTextField isbnField = new JTextField();
-        JTextField titoloField = new JTextField();
-        JTextField autoreField = new JTextField();
-        JTextField genereField = new JTextField();
-        JTextField valField = new JTextField();
-        JComboBox<StatoLettura> statoBox = new JComboBox<>(StatoLettura.values());
+        JTextField campoISBN = new JTextField();
+        JTextField campoTitolo = new JTextField();
+        JTextField campoAutore = new JTextField();
+        JTextField campoGenere = new JTextField();
+        JTextField campoValutazione = new JTextField();
+        JComboBox<StatoLettura> selezioneStato = new JComboBox<>(StatoLettura.values());
         String titolo = "Modifica Libro";
         if (libro != null) {
-            isbnField.setText(String.valueOf(libro.getISBN()));
-            titoloField.setText(libro.getTitolo());
-            autoreField.setText(libro.getAutore());
-            genereField.setText(libro.getGenere());
-            valField.setText(String.valueOf(libro.getValutazione()));
-            statoBox.setSelectedItem(libro.getStatoLettura());
-
+            campoISBN.setText(String.valueOf(libro.getISBN()));
+            campoTitolo.setText(libro.getTitolo());
+            campoAutore.setText(libro.getAutore());
+            campoGenere.setText(libro.getGenere());
+            campoValutazione.setText(String.valueOf(libro.getValutazione()));
+            selezioneStato.setSelectedItem(libro.getStatoLettura());
         }
         JPanel p = new JPanel(new GridLayout(0, 2, 5, 5));
         p.add(new JLabel("ISBN:"));
-        p.add(isbnField);
+        p.add(campoISBN);
         p.add(new JLabel("Titolo:"));
-        p.add(titoloField);
+        p.add(campoTitolo);
         p.add(new JLabel("Autore:"));
-        p.add(autoreField);
+        p.add(campoAutore);
         p.add(new JLabel("Genere:"));
-        p.add(genereField);
+        p.add(campoGenere);
         p.add(new JLabel("Valutazione:"));
-        p.add(valField);
+        p.add(campoValutazione);
         p.add(new JLabel("Stato:"));
-        p.add(statoBox);
+        p.add(selezioneStato);
         JOptionPane.showConfirmDialog(this, p, titolo, JOptionPane.OK_CANCEL_OPTION);
         try {
-            long isbn = Long.parseLong(isbnField.getText().trim());
-            String valText = valField.getText().trim();
+            long isbn = Long.parseLong(campoISBN.getText().trim());
+            String valText = campoValutazione.getText().trim();
             int val = 0;
             StatoLettura statoLettura = StatoLettura.DA_LEGGERE;
             if (!valText.isEmpty()) {
                 val = Integer.parseInt(valText);
-                statoLettura = (StatoLettura) statoBox.getSelectedItem();
+                statoLettura = (StatoLettura) selezioneStato.getSelectedItem();
             }
-            return new Libro(isbn, titoloField.getText().trim(), autoreField.getText().trim(), genereField.getText().trim(), val, statoLettura);
+            return new Libro(isbn, campoTitolo.getText().trim(), campoAutore.getText().trim(), campoGenere.getText().trim(), val, statoLettura);
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Dati non validi", "Errore", JOptionPane.ERROR_MESSAGE);
             return null;

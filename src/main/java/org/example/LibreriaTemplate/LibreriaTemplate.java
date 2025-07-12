@@ -48,9 +48,11 @@ public abstract class LibreriaTemplate {
     public abstract void scriviSuFile(Libro nuovo);
 
 
-    //Consente di modificare il libro. Nota bene: non posso modificare un file, non posso inserire in mezzo un libro modificato
+    //Consente di modificare il libro.
+    // Nota bene: non posso modificare un file, non posso inserire in mezzo un libro modificato
     public abstract void sovrascriviFile();
 
+    //Il metodo ottieni libro, in questa implementazione, serve solo per il csv, ma lo implemento per poterlo usare in futuro con qualsiasi tipo di file che ha dei limitatori
     protected Libro ottieniLibro(String linea, String delimitatore) {
         StringTokenizer st = new StringTokenizer(linea, delimitatore);
         long isbn = Long.parseLong(st.nextToken());

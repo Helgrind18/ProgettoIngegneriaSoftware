@@ -7,7 +7,8 @@ import java.util.List;
 public abstract class RicercaComponent implements RicercaDecorator {
 
     /*
-     * Per implementazione del pattern decorator devo avere un riferimento all'interfaccia. Delegando ad esso la chiamata di cerca()
+     * Per implementazione del pattern decorator devo avere un riferimento all'interfaccia.
+     * Delegando ad essa la chiamata di cerca()
      * */
 
     private RicercaDecorator ricercaDecorator;

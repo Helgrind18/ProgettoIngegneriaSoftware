@@ -29,10 +29,6 @@ public class Libro implements Serializable {
         return ISBN;
     }
 
-    public void setISBN(long ISBN) {
-        this.ISBN = ISBN;
-    }
-
     public String getTitolo() {
         return titolo;
     }
@@ -87,8 +83,9 @@ public class Libro implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Libro libro)) return false;
-        return getISBN() == libro.getISBN() && Objects.equals(getTitolo(), libro.getTitolo()) && Objects.equals(getAutore(), libro.getAutore()) && Objects.equals(getGenere(), libro.getGenere());
+        if (!(o instanceof Libro)) return false;
+        Libro libro = (Libro) o;
+        return getISBN() == libro.getISBN() && this.getTitolo().equals(libro.getTitolo()) && this.getAutore().equals(libro.getAutore()) && this.getGenere().equals(libro.getGenere());
     }
 
     @Override
