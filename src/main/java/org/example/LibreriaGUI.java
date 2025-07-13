@@ -26,7 +26,7 @@ public class LibreriaGUI extends JFrame {
     public LibreriaGUI(File file) {
         super("Libreria");
         // Inizializzo la facade
-        libreriaFacade = new LibreriaFacade(file);
+        libreriaFacade = new LibreriaFacade(file); // è il receiver del command (in realtà sono le classi specifiche per l'implementazione della persistenza, però ricopre il ruolo di receiver)
         // Inizializzo i vari comandi
         this.aggiunta = new Aggiunta(libreriaFacade,this);
         this.cerca = new Cerca(libreriaFacade,this);
@@ -49,7 +49,7 @@ public class LibreriaGUI extends JFrame {
         modifica.setEnabled(false);
         elimina.setEnabled(false);
         //Azioni per i bottoni
-        aggiungi.addActionListener(e -> this.aggiunta.execute());
+        aggiungi.addActionListener(e -> this.aggiunta.execute()); // sono i vari invoker, non sanno come implementare un'azione, sanno solo che devono eseguire un comando
         ricerca.addActionListener(e -> this.cerca.execute());
         modifica.addActionListener(e -> this.modifica.execute());
         elimina.addActionListener(e -> this.elimina.execute());
@@ -150,7 +150,7 @@ public class LibreriaGUI extends JFrame {
 
 
     public static void main(String[] args) {
-        File file = new File(Costanti.percorsoFileCSVLinux);
+        File file = new File(Costanti.percorsoFileCSV);
         if (!file.exists()) try {
             file.createNewFile();
         } catch (IOException ignored) {
