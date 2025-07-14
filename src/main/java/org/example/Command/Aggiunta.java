@@ -14,7 +14,7 @@ public class Aggiunta implements Command{
     }
 
     @Override
-    public void execute() {
+    public void eseguiComando() {
         // Mostra schermata per aggiungere un libro
         Libro nuovo = gui.schermataModifica(null);
         if (nuovo != null && facade.aggiungiLibro(nuovo)) {

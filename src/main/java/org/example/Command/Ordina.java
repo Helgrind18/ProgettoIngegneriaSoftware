@@ -18,7 +18,7 @@ public class Ordina implements Command{
     }
 
     @Override
-    public void execute() {
+    public void eseguiComando() {
         if(criterio != null) {
             List<Libro> listaOrdinata = facade.ordina(gui.getCurrentList(), criterio);
             gui.riempiTabella(listaOrdinata);

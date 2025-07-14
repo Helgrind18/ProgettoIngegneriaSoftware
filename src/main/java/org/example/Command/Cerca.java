@@ -20,7 +20,7 @@ public class Cerca implements Command {
     }
 
     @Override
-    public void execute() {
+    public void eseguiComando() {
         JTextField campoTitolo = new JTextField();
         JTextField campoAutore = new JTextField();
         JTextField campoGenere = new JTextField();

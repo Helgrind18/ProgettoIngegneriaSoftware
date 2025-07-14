@@ -14,7 +14,7 @@ public class Elimina implements Command {
     }
 
     @Override
-    public void execute() {
+    public void eseguiComando() {
         int row = gui.getTable().getSelectedRow();
         long isbn = (Long) gui.getTableModel().getValueAt(row, 0);
         Libro selezionato = facade.ottieniLibro(isbn);

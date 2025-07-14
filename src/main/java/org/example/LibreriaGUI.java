@@ -10,9 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 public class LibreriaGUI extends JFrame {
     private final LibreriaFacade libreriaFacade;
@@ -49,13 +47,13 @@ public class LibreriaGUI extends JFrame {
         modifica.setEnabled(false);
         elimina.setEnabled(false);
         //Azioni per i bottoni
-        aggiungi.addActionListener(e -> this.aggiunta.execute()); // sono i vari invoker, non sanno come implementare un'azione, sanno solo che devono eseguire un comando
-        ricerca.addActionListener(e -> this.cerca.execute());
-        modifica.addActionListener(e -> this.modifica.execute());
-        elimina.addActionListener(e -> this.elimina.execute());
+        aggiungi.addActionListener(e -> this.aggiunta.eseguiComando()); // sono i vari invoker, non sanno come implementare un'azione, sanno solo che devono eseguire un comando
+        ricerca.addActionListener(e -> this.cerca.eseguiComando());
+        modifica.addActionListener(e -> this.modifica.eseguiComando());
+        elimina.addActionListener(e -> this.elimina.eseguiComando());
         JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN", "Stato"});
         sortBox.addActionListener(e -> {
-            new Ordina((String) sortBox.getSelectedItem(),libreriaFacade,this).execute();
+            new Ordina((String) sortBox.getSelectedItem(),libreriaFacade,this).eseguiComando();
         });
         // Ora implemento un metodo per permette la modifica dei libri, sono visibili solo se si preme su quel libro
         table.getSelectionModel().addListSelectionListener(e -> {
