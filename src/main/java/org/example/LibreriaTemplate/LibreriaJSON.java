@@ -75,9 +75,6 @@ public class LibreriaJSON extends LibreriaTemplate {
         }
     }
 
-    /**
-     * Chiusura del file azzeriamo le variabili per favorire la garbage collection.
-     */
     @Override
     protected void chiudiFile() {
         libriArray = null;
