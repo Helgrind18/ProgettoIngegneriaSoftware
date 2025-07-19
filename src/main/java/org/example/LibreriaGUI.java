@@ -21,15 +21,16 @@ public class LibreriaGUI extends JFrame {
     private Command cerca;
     private Command modifica;
     private Command elimina;
+
     public LibreriaGUI(File file) {
         super("Libreria");
         // Inizializzo la facade
         libreriaFacade = new LibreriaFacade(file); // è il receiver del command (in realtà sono le classi specifiche per l'implementazione della persistenza, però ricopre il ruolo di receiver)
         // Inizializzo i vari comandi
-        this.aggiunta = new Aggiunta(libreriaFacade,this);
-        this.cerca = new Cerca(libreriaFacade,this);
-        this.modifica = new Modifica(libreriaFacade,this);
-        this.elimina = new Elimina(libreriaFacade,this);
+        this.aggiunta = new Aggiunta(libreriaFacade, this);
+        this.cerca = new Cerca(libreriaFacade, this);
+        this.modifica = new Modifica(libreriaFacade, this);
+        this.elimina = new Elimina(libreriaFacade, this);
         // Setup tabella
         String[] colonne = {"ISBN", "Titolo", "Autore", "Genere", "Valutazione", "Stato"};
         tableModel = new DefaultTableModel(colonne, 0); // Il modello contiene le colonne da visualizzare, in questo modo gliele sto passando
@@ -53,7 +54,7 @@ public class LibreriaGUI extends JFrame {
         elimina.addActionListener(e -> this.elimina.eseguiComando());
         JComboBox<String> sortBox = new JComboBox<>(new String[]{"Valutazione", "Titolo", "Genere", "ISBN", "Stato"});
         sortBox.addActionListener(e -> {
-            new Ordina((String) sortBox.getSelectedItem(),libreriaFacade,this).eseguiComando();
+            new Ordina((String) sortBox.getSelectedItem(), libreriaFacade, this).eseguiComando();
         });
         // Ora implemento un metodo per permette la modifica dei libri, sono visibili solo se si preme su quel libro
         table.getSelectionModel().addListSelectionListener(e -> {
@@ -148,7 +149,7 @@ public class LibreriaGUI extends JFrame {
 
 
     public static void main(String[] args) {
-        File file = new File(Costanti.percorsoFileCSV);
+        File file = new File(Costanti.percorsoFileJSONLinux);
         if (!file.exists()) try {
             file.createNewFile();
         } catch (IOException ignored) {

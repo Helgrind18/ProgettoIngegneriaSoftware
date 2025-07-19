@@ -22,7 +22,6 @@ public class TemplateTest {
 
     private List<Libro> biblitoeca;
     private LibreriaTemplate libreriaTemplate;
-    private File fileTemporaneo;
     private LibreriaLista libreriaLista;
     @BeforeEach
     public void setup() throws IOException {
@@ -80,10 +79,4 @@ public class TemplateTest {
         assertTrue(libreriaLista.rimuoviLibro(vecchio));
     }
 
-    @AfterEach
-    public void cleanup() {
-        if (fileTemporaneo != null && fileTemporaneo.exists()) {
-            fileTemporaneo.delete();
-        }
-    }
 }

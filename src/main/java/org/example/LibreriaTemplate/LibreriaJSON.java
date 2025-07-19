@@ -32,10 +32,8 @@ public class LibreriaJSON extends LibreriaTemplate {
     protected void apriFile() {
         // leggo il contenuto del file
         try (FileReader reader = new FileReader(fileLibreria)) {
-            // Parsing di tutto il file in un oggetto Java
-            Object obj = parser.parse(reader);
             // Casting dell'oggetto in JSONArray
-            libriArray = (JSONArray) obj;
+            libriArray = (JSONArray) parser.parse(reader);;
             iterator = libriArray.iterator();
         } catch (IOException | ParseException e) {
             throw new RuntimeException("Errore nell'apertura del file JSON", e);
