@@ -10,4 +10,7 @@ public class Costanti {
 
     public static String percorsoFileCSVLinux = "/home/helgrind/IdeaProjects/ProgettoIngegneriaSoftware/src/main/java/org/example/files/libreria.csv";
     public static String percorsoFileJSONLinux = "/home/helgrind/IdeaProjects/ProgettoIngegneriaSoftware/src/main/java/org/example/files/libreria.json";
+
+    public static final String percorsoFileJSONTestLinux = "/home/helgrind/IdeaProjects/ProgettoIngegneriaSoftware/src/test/java/files/libreria.json";
+
 }

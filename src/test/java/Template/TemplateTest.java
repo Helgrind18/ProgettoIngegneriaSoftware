@@ -27,12 +27,9 @@ public class TemplateTest {
     @BeforeEach
     public void setup() throws IOException {
         // Creo copia del file CSV originale per i test
-        Path originalPath = Path.of(Costanti.percorsoFileCSVTest);
-        Path tempPath = Files.createTempFile("testFile_", ".csv");
-        Files.copy(originalPath, tempPath, StandardCopyOption.REPLACE_EXISTING);
-        fileTemporaneo = tempPath.toFile();
+        File fileCSV = new File("/home/helgrind/IdeaProjects/ProgettoIngegneriaSoftware/src/test/java/files/libreria.csv");
         libreriaLista = new LibreriaLista();
-        libreriaTemplate = new LibreriaCSV(fileTemporaneo, libreriaLista);
+        libreriaTemplate = new LibreriaCSV(fileCSV, libreriaLista);
         libreriaTemplate.esegui();
     }
 
@@ -50,7 +47,7 @@ public class TemplateTest {
     @Test
     @DisplayName("Test lettura file json")
     public void leggiJSON() {
-        libreriaTemplate = new LibreriaJSON(new File(Costanti.percorsoFileJSONTest), new LibreriaLista());
+        libreriaTemplate = new LibreriaJSON(new File(Costanti.percorsoFileJSONTestLinux), new LibreriaLista());
         libreriaTemplate.esegui();
         this.biblitoeca = libreriaTemplate.getBiblitoeca();
 
